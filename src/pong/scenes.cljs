@@ -78,10 +78,10 @@
 
 (defn draw-credits-scene [ctx]
   (let [t1 "PONG IN CLJS"
-        m1 "This is an attempt at pong using clojurescript."
-        m2 "The AI enemy is vicious!"
+        m1 "This is an attempt at pong using clojurescript, Reagent, "
+        m2 "and Re-frame. Beware the enemy AI!"
         m3 "You can find more information about the project on it's"
-        m4 "github page:"
+        m4 "codeberg page:"
         m5 "https://codeberg.org/Kyuvi/cljs-pong"
         m6 "Thanks to John McCarthy, Steve Russel and Rich Hickley"
         m7 "also thanks to Luxedo for his excellent javascript version."
