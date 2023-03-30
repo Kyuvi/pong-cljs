@@ -6,6 +6,8 @@
  (:require [ sutils.canvas :as cvu])
   )
 
+        ;;;; game constant values ;;;;
+
 (def version "v0.01")
 
 (def game-view {:fps 60 :width 804 :height 600 })
@@ -13,8 +15,8 @@
 (def game-difficulty ["easy" "medium" "unfair"])
 
 (def grid-size 12)
-(def margin-size (* 3 grid-size) )
 (def letter-spacing (* 4 grid-size) )
+(def margin-size (* 3 grid-size) )
 
 (def game-border
   (let [top (+ margin-size grid-size)
@@ -24,8 +26,24 @@
     {:top top :bottom bottom :left left :right right
      :height (- bottom top) :width (- right left)}))
 
+(def cursor-vals {:width (* grid-size 20) :height (* grid-size 4)
+                  :thickness 5})
 
-        ;;;; drawing functions ;;;;
+(def cursor-xpos {:centered (/ (- (:width game-view) (:width cursor-vals)
+                                  (* (:thickness cursor-vals) 2))
+                               2)
+                  :left 20 })
+
+(def cursor-ypos {:menu [20.5 25.5 30.5 35.5]
+                  :options [28.5 33.5 38.5]
+                  :end [28.5 33.5]})
+
+
+(def paddle-vals {:len (* 8 grid-size) :step 10})
+
+(def ball-speed 10)
+
+        ;;;; game drawing functions ;;;;
 
 (defn fill-block
   ([ctx x y ]

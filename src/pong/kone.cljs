@@ -31,12 +31,46 @@
 ;;     {:top top :bottom bottom :left left :right right
 ;;      :height (- bottom top) :width (- right left)}))
 
+;; (def cursor-vals {:width (* pr/grid-size 20) :height (* pr/grid-size 4)
+;;                   :thickness 5})
+
+;; (def cursor-ypos {:menu [20.5 25.5 30.5 35.5]
+;;                  :options [28.5 33.5 38.5]
+;;                  :end [28.5 33.5]})
+
+(defn make-cursor-xs
+  "Returns the vector of [x y] vectors for `mode`."
+  [mode]
+  (let [xpos-key (if (#{:menu :options :end} mode) :centered :left)
+        xpos (xpos-key pr/cursor-xpos)
+        y-pos-xs (mode pr/cursor-ypos)]
+    ;; (when y-pos-xs
+    (mapv (fn [ypos] [xpos (* pr/grid-size ypos)]) y-pos-xs)
+    ;; )
+  ))
+
+
+;; (defn make-cursor-xs [y-pos-xs] ;; TODO: change to need only mode
+;;   "Return a vector of [x y] vectors if `y-pos-xs` is given.
+;;    Otherwise returns nil."
+;;   (let [xpos (/ (- (:width pr/game-view) (:width pr/cursor-vals)
+;;                    (* (:thickness pr/cursor-vals) 2))
+;;                 2)]
+;;     (when y-pos-xs
+;;       (mapv (fn [ypos] [xpos (* pr/grid-size ypos)]) y-pos-xs))))
+
+
+;; (def menu-cursor-pos (make-cursor-xs [20.5 25.5 30.5 35.5]))
+;; (def options-cursor-pos (make-cursor-xs [28.5 33.5 38.5]))
+;; (def end-cursor-pos (make-cursor-xs [28.5 35.5]))
+
 (defn make-game-paddle [side key-up key-down]
   (let [xpos (if (= side :left)
                (+ (:left pr/game-border) pr/grid-size)
                (- (:right pr/game-border) pr/grid-size ))]
-    (obj/make-paddle xpos (/ (:height pr/game-border) 2) obj/paddle-len
-                     key-up key-down (:top pr/game-border) (:bottom pr/game-border))))
+    (obj/make-paddle xpos (/ (:height pr/game-border) 2) (:len pr/paddle-vals) ;;obj/paddle-len
+                     key-up key-down
+                     (:top pr/game-border) (:bottom pr/game-border))))
 
 (defn spawn-ball
   ([] (spawn-ball nil))
@@ -57,31 +91,13 @@
      )))
 
 
-(def cursor-vals {:width (* pr/grid-size 20) :height (* pr/grid-size 4)
-                  :thickness 5})
-
-(defn make-cursor-xs [y-pos-xs]
-  "Return a vector of [x y] vectors if `y-pos-xs` is given.
-   Otherwise returns nil."
-  (let [xpos (/ (- (:width pr/game-view) (:width cursor-vals)
-                   (* (:thickness cursor-vals) 2))
-                2)]
-    (when y-pos-xs
-      (mapv (fn [ypos] [xpos (* pr/grid-size ypos)]) y-pos-xs))))
-
-(def cursor-ypos {:menu [20.5 25.5 30.5 35.5]
-                 :options [28.5 33.5 38.5]
-                 :end [28.5 33.5]})
-
-;; (def menu-cursor-pos (make-cursor-xs [20.5 25.5 30.5 35.5]))
-;; (def options-cursor-pos (make-cursor-xs [28.5 33.5 38.5]))
-;; (def end-cursor-pos (make-cursor-xs [28.5 35.5]))
 
 
 (defn initialize-state
   ([mode] (initialize-state mode nil))
   ([mode previous-state]
-  (assert (contains? #{:menu :single :versus :options :credits :end} mode)
+   (assert (contains? #{:menu :single :versus ;; :options :controls
+                        :credits :end} mode)
           (str "mode " mode
                " not one of ':menu :single :versus :options :credits :end'"))
   ;; (let [[pd1 pd2 ball score]
@@ -98,13 +114,14 @@
                   {:rounds 5 :difficulty 1
                    :controls {:p1 {:up "r" :down "d"} :p2 {:up  "h" :down "i"}}})
       :cursor (when (#{:menu :options :end} mode)
-                (obj/make-cursor (:width cursor-vals) (:height cursor-vals)
-                                 (make-cursor-xs (mode cursor-ypos))
+                (obj/make-cursor (:width pr/cursor-vals) (:height pr/cursor-vals)
+                                 ;; (make-cursor-xs (mode cursor-ypos))
+                                 (make-cursor-xs mode)
                                ;; (cond (= mode :menu) menu-cursor-pos
                                ;;       (= mode :options) options-cursor-pos
                                ;;       (= mode :end) end-cursor-pos
                                ;;       :else nil)
-                               (:thickness cursor-vals)))
+                               (:thickness pr/cursor-vals)))
       :scene (when (contains? #{:single :versus} mode)
                {:paddle-one (make-game-paddle :left "r" "d");  82 68 )
                 :paddle-two  (make-game-paddle :right "h" "i") ;72 73 )
@@ -340,7 +357,7 @@
         action (get-in down-actions [(:mode (:state db)) key ] no-op)]
     (println action)
     (if (ckey-set key)
-      (add-pressed-key-cofx cofx key)
+      (add-pressed-key-cofx cofx key) ;; gives cleaner response in game
       (action cofx))))
 
 (defn handle-key-up
@@ -358,12 +375,14 @@
 
 (defn paddle-ai [difficulty paddle ball-y]
   (let [diff-step (case difficulty
-                    0 (/ obj/paddle-step 3 )
-                    1 obj/paddle-step
-                    2 (*  obj/paddle-step 3 ))
+                    0 (/ (:step pr/paddle-vals) 3 )
+                    1 (:step pr/paddle-vals)
+                    2 (*  (:step pr/paddle-vals) 3 ))
         [px py] (obj/get-pos paddle)
         [size top bottom] ((juxt :size :top :bottom) paddle)
-        center-delta (- (+ ball-y pr/grid-size) py (/ obj/paddle-len 2))
+        center-delta (- (+ ball-y pr/grid-size) py (/ (:len pr/paddle-vals)
+                                                      ;; obj/paddle-len
+                                                      2))
         temp-paddle-y (if (> (Math/abs center-delta) diff-step)
                         (+ py (/ diff-step (if (pos? center-delta) 1 -1)))
                         (+ py center-delta))
@@ -416,9 +435,13 @@
         ;; ball paddle-1 collision
         (and (<= bx (+ (:left pr/game-border) (* 2 pr/grid-size)))
              (>= (+ by pr/grid-size) p1-y)
-             (<= by (+ p1-y (+ obj/paddle-len (* 2 pr/grid-size)))))
+             (<= by (+ p1-y (+ (:len pr/paddle-vals)
+                               ;; obj/paddle-len
+                               (* 2 pr/grid-size)))))
         (let [dy (- (* 0.8 (/ (- (+ by (/ pr/grid-size 2)) p1-y)
-                              (+ obj/paddle-len (* pr/grid-size 2)))) 0.4)
+                              (+ (:len pr/paddle-vals)
+                                 ;; obj/paddle-len
+                                 (* pr/grid-size 2)))) 0.4)
               angle (* dy Math/PI)]
           (pr/play-paddle)
           ;; (println "paddle-one")
@@ -433,9 +456,13 @@
         (and (>= bx (- (:right pr/game-border) (* 2 pr/grid-size)))
 
              (>= (+ by pr/grid-size) p2-y)
-             (<= by (+ p2-y (+ obj/paddle-len (* 2 pr/grid-size)))))
+             (<= by (+ p2-y (+ (:len pr/paddle-vals)
+                               ;; obj/paddle-len
+                               (* 2 pr/grid-size)))))
         (let [dy (- (* 0.8 (/ (- (+ by (/ pr/grid-size 2)) p2-y)
-                              (+ obj/paddle-len (* pr/grid-size 2)))) 0.4)
+                              (+(:len pr/paddle-vals)
+                                ;; obj/paddle-len
+                                (* pr/grid-size 2)))) 0.4)
               angle (* (- 1 dy) Math/PI)]
           (pr/play-paddle)
           ;; (println "paddle-two")

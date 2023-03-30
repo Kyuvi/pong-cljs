@@ -8,9 +8,9 @@
             [sutils.rf :as rfu])
   )
 
-(def ball-speed 10)
-(def paddle-step 10 )
-(def paddle-len (* 8 pr/grid-size) )
+;; (def ball-speed 10)
+;; (def paddle-step 10 )
+;; (def paddle-len (* 8 pr/grid-size) )
 
 (defprotocol SpriteProtocol
 (get-pos [sp])
@@ -58,12 +58,12 @@
           pressed-set (rfu/<sub [::subs/pressed])
           [kup kdn] ((juxt :key-up :key-down) sp)
           [size top bottom] ((juxt :size :top :bottom) sp)
-          ty (cond (pressed-set kup) (- y paddle-step)
-                   (pressed-set kdn) (+ y paddle-step)
+          ty (cond (pressed-set kup) (- y (:step pr/paddle-vals))
+                   (pressed-set kdn) (+ y (:step pr/paddle-vals))
                    :else y)
-          ;; nx (if (.-isDown kup) (- y paddle-step) )
-          ;; ty (cond (= dir :up) (- y paddle-step)
-          ;;          (= dir :down) (+ y paddle-step)
+          ;; nx (if (.-isDown kup) (- y (:step pr/paddle-vals)) )
+          ;; ty (cond (= dir :up) (- y (:step pr/paddle-vals))
+          ;;          (= dir :down) (+ y (:step pr/paddle-vals))
           ;;          :else y)
           ny (cond (<= ty top) top
                    (>= (+ ty size) bottom) (- bottom size)
@@ -77,10 +77,10 @@
     (let [[x y] (get-pos sp)
           ;; [kup kdn] ((juxt :key-up :key-down) sp)
           [size top bottom] ((juxt :size :top :bottom) sp)
-          ;; nx (if (.-isDown kup) (- y paddle-step) )
-          ;; nx (if (.-isDown kup) (- y paddle-step) )
-          ty (cond (= dir :up) (- y paddle-step)
-                   (= dir :down) (+ y paddle-step)
+          ;; nx (if (.-isDown kup) (- y (:step pr/paddle-vals)) )
+          ;; nx (if (.-isDown kup) (- y (:step pr/paddle-vals)) )
+          ty (cond (= dir :up) (- y (:step pr/paddle-vals))
+                   (= dir :down) (+ y (:step pr/paddle-vals))
                    :else y)
           ny (cond (<= ty top) top
                    (>= (+ ty size) bottom) (- bottom size)
@@ -112,8 +112,8 @@
                      (+ ty (* speed (Math/sin ndir)))]
                     [tx ty])
           new-count (when (and count (< count 200)) (inc count))
-          new-speed (cond (and count (< count 80)) (/ ball-speed 2)
-                          (and count (< count 160) (< speed ball-speed)) ball-speed
+          new-speed (cond (and count (< count 80)) (/ pr/ball-speed 2)
+                          (and count (< count 160) (< speed pr/ball-speed)) pr/ball-speed
                           :else speed)
           ]
       (when edge-pred (pr/play-wall))
