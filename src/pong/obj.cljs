@@ -112,11 +112,11 @@
                      (+ ty (* speed (Math/sin ndir)))]
                     [tx ty])
           new-count (when (and count (< count 200)) (inc count))
-          new-speed (cond (and count (< count 40)) (/ ball-speed 2)
-                          (and count (< count 80) (< speed ball-speed)) ball-speed
+          new-speed (cond (and count (< count 80)) (/ ball-speed 2)
+                          (and count (< count 160) (< speed ball-speed)) ball-speed
                           :else speed)
           ]
-      ;; (when edge-pred (play-blip1))
+      (when edge-pred (pr/play-wall))
       (assoc sp :pos (make-spos nx ny) :speed new-speed :direction ndir
              :tick-count new-count)
       )))
