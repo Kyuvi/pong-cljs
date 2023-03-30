@@ -30,10 +30,10 @@
     )
  )
 
-(rf/reg-event-fx
- ::ball-speed
- (fn [cofx event]
-   (kn/ball-speed-inc-cofx cofx)))
+;; (rf/reg-event-fx
+;;  ::ball-speed
+;;  (fn [cofx event]
+;;    (kn/ball-speed-inc-cofx cofx)))
 
 (rf/reg-event-fx
  ::key-up
