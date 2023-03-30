@@ -1,4 +1,5 @@
 (ns pong.kone
+  "Main engine of pong game."
   {:author "Kyuvi"
    :license {:name "GPL-3.0 WITH Classpath-exception-2.0"
              :url "https://www.gnu.org/licenses/gpl-3.0.html"}}
@@ -373,6 +374,8 @@
 ;;     (action db)))
 
 
+        ;;;; game scene updates ;;;;
+
 (defn paddle-ai [difficulty paddle ball-y]
   (let [diff-step (case difficulty
                     0 (/ (:step pr/paddle-vals) 3 )
@@ -495,12 +498,11 @@
         (let [{state :state prev :previous } (initialize-state :end state)]
           (assoc db :state state :previous prev))
         :else
-        (do ;; (println
-             ;; "next" tball)
+        ;; (do  (println "next" tball)
             (assoc-in db [:state :scene ]
                       (merge scene {:paddle-one pd1
                                     :paddle-two pd2 :ball tball}))
-)
+;; )
 
         ;;
         ))

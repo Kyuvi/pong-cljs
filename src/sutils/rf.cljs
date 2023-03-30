@@ -1,4 +1,5 @@
 (ns sutils.rf
+  "Re-frame utilities for clojurescript."
   (:require
    [re-frame.core :as rf]
    [re-frame.db :as rfdb]

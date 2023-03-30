@@ -12,10 +12,6 @@
  (fn [db _] (:state db)))
 
 (rf/reg-sub
- ::previous
- (fn [db _] (:previous db)))
-
-(rf/reg-sub
  ::mode
  (fn [db _] (get-in db [:state :mode])))
 
@@ -28,6 +24,14 @@
  (fn [db _] (get-in db [:state :cursor])))
 
 (rf/reg-sub
+ ::current-cur
+ (fn [db _] (get-in db [:state :cursor :current])))
+
+(rf/reg-sub
+ ::previous
+ (fn [db _] (:previous db)))
+
+(rf/reg-sub
  ::previous-mode
  (fn [db _] (get-in db [:previous :mode])))
 
@@ -35,9 +39,6 @@
  ::previous-score
  (fn [db _] (get-in db [:previous :score])))
 
-(rf/reg-sub
- ::current-cur
- (fn [db _] (get-in db [:state :cursor :current])))
 
         ;;;; game ;;;;
 

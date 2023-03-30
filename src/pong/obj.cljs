@@ -1,22 +1,23 @@
 (ns pong.obj
+  "Object(record) definitions and protocols of pong game"
   {:author "Kyuvi"
    :license {:name "GPL-3.0 WITH Classpath-exception-2.0"
              :url "https://www.gnu.org/licenses/gpl-3.0.html"}}
-  (:require [pong.prep :as pr]
+  (:require [sutils.rf :as rfu]
+            [pong.prep :as pr]
             [pong.blkchars :as lt]
-            [pong.rfm.subs :as subs]
-            [sutils.rf :as rfu])
-  )
+            [pong.rfm.subs :as subs]))
 
 ;; (def ball-speed 10)
 ;; (def paddle-step 10 )
 ;; (def paddle-len (* 8 pr/grid-size) )
 
 (defprotocol SpriteProtocol
-(get-pos [sp])
-(draw-sprite [sp ctx])
+(get-pos [sp] "Return a vector [x y] of co-ordinates of `sp`.")
+(draw-sprite [sp ctx] "Draw sprite `sp` to canvas with context `ctx`.")
 (update-sprite [sp]
-               [sp input])
+               [sp input]
+               "Update sprite `sp`, optionally based on `input`.")
   )
 
 
@@ -58,13 +59,10 @@
           pressed-set (rfu/<sub [::subs/pressed])
           [kup kdn] ((juxt :key-up :key-down) sp)
           [size top bottom] ((juxt :size :top :bottom) sp)
+          ;; nx (if (.-isDown kup) (- y (:step pr/paddle-vals)) )
           ty (cond (pressed-set kup) (- y (:step pr/paddle-vals))
                    (pressed-set kdn) (+ y (:step pr/paddle-vals))
                    :else y)
-          ;; nx (if (.-isDown kup) (- y (:step pr/paddle-vals)) )
-          ;; ty (cond (= dir :up) (- y (:step pr/paddle-vals))
-          ;;          (= dir :down) (+ y (:step pr/paddle-vals))
-          ;;          :else y)
           ny (cond (<= ty top) top
                    (>= (+ ty size) bottom) (- bottom size)
                    :else ty)
@@ -75,10 +73,7 @@
    ) )
   (update-sprite [sp dir]
     (let [[x y] (get-pos sp)
-          ;; [kup kdn] ((juxt :key-up :key-down) sp)
           [size top bottom] ((juxt :size :top :bottom) sp)
-          ;; nx (if (.-isDown kup) (- y (:step pr/paddle-vals)) )
-          ;; nx (if (.-isDown kup) (- y (:step pr/paddle-vals)) )
           ty (cond (= dir :up) (- y (:step pr/paddle-vals))
                    (= dir :down) (+ y (:step pr/paddle-vals))
                    :else y)
@@ -141,10 +136,7 @@
              [[x y (+ x w) y]
               [x y x (+ y h)]
               [(+ x w) (+ y h) x  (+ y h) ]
-              [(+ x w) (+ y h) (+ x w) y]]
-      )
-      ;; )
-      ))
+              [(+ x w) (+ y h) (+ x w) y]]))) ;; )
 
   ;; (update-sprite [sp]
   ;;   (let [[current length pos-xs] ((juxt :current :timeout :pos-xs) sp)
@@ -158,7 +150,7 @@
   ;;         ntime (+ js/Date.now 200)]
   ;;     (assoc sp :timeout ntime :current ncurr)))
 
-(update-sprite [sp dir]
+  (update-sprite [sp dir]
     (let [[current length pos-xs] ((juxt :current :timeout :pos-xs) sp)
           pos-len (count pos-xs)
           tcurr (case dir

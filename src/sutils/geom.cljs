@@ -1,4 +1,6 @@
-(ns sutils.geom)
+(ns sutils.geom
+  "(2d) Geometry utilities for clojurescript "
+  )
 
 (def ^:const pi Math/PI)
 

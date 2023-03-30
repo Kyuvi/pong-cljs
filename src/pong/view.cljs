@@ -1,4 +1,5 @@
 (ns pong.view
+  "Main canvas view of pong."
   {:author "Kyuvi"
    :license {:name "GPL-3.0 WITH Classpath-exception-2.0"
              :url "https://www.gnu.org/licenses/gpl-3.0.html"}}
@@ -12,11 +13,7 @@
             [pong.obj :as obj]
             [pong.kone :as kn]
             [pong.rfm.subs :as subs]
-            [pong.scenes :as scn]
-            ))
-
-
-
+            [pong.scenes :as scn]))
 
 
 (defn pcanv []
@@ -115,6 +112,5 @@
         ;; mode (rfu/<sub [::subs/mode])
         ;; cursor (rfu/<sub [::subs/cursor])
         ] ;; NOTE: subscriptions need to be loader
-    ;; (kn/tick!)
     ;; [(pcanv) {:mode mode :cursor cursor}]))
     [(pcanv) {:state state}]))

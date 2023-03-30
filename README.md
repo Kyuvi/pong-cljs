@@ -1,10 +1,10 @@
 # pong
 
-FIXME: Write a one-line description of your library/project.
+Pong in clojurescript using reagent and re-frame.
 
 ## Overview
 
-FIXME: Write a paragraph about the library/project and highlight its goals.
+Mainly to experiment with using reagent/re-frame for making games on the html canvas.
 
 ## Setup
 

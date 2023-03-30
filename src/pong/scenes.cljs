@@ -1,4 +1,8 @@
 (ns pong.scenes
+  "Draw scenes to screen (depending on mode)."
+  {:author "Kyuvi"
+   :license {:name "GPL-3.0 WITH Classpath-exception-2.0"
+             :url "https://www.gnu.org/licenses/gpl-3.0.html"}}
   (:require [reagent.core :as rg :refer [atom]]
             [reagent.dom :as rd]
             [re-frame.core :as rf]
@@ -150,8 +154,8 @@
         winner (if (> p1 p2) 1 2)
         t1  "GAMEOVER"
         t2 (if (= (:mode prev) :single)
-                         (str  " YOU " (if (== winner 1) "WIN " "LOSE "))
-                         (str " PLAYER " winner " WINs "))
+             (str  " YOU " (if (== winner 1) "WIN " "LOSE "))
+             (str " PLAYER " winner " WINs "))
         t3 (str p1 " "  p2)
         o1 "PLAY AGAIN"
         o2 "MENU"
