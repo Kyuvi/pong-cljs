@@ -18,14 +18,14 @@
         ball (get-in state [:scene :ball])
         pdl1 (get-in state [:scene :paddle-one])
         pdl2 (get-in state [:scene :paddle-two])
-        [b-left b-right] ((juxt :left :right) kn/game-border)
-        [b-top b-bot] ((juxt :top :bottom) kn/game-border)
-        [b-width b-height] ((juxt :width :height) kn/game-border)
+        [b-left b-right] ((juxt :left :right) pr/game-border)
+        [b-top b-bot] ((juxt :top :bottom) pr/game-border)
+        [b-width b-height] ((juxt :width :height) pr/game-border)
         ]
     (pr/draw-blk-line ctx b-left pr/margin-size b-right pr/margin-size)
     (pr/draw-blk-line ctx b-left b-bot b-right b-bot)
     (doseq [i (range (* 3.5 pr/grid-size) b-bot (* 2 pr/grid-size))]
-      (pr/fill-block  ctx (- (/ (:width kn/game-view) 2) (/ pr/grid-size 2)) i))
+      (pr/fill-block  ctx (- (/ (:width pr/game-view) 2) (/ pr/grid-size 2)) i))
 
     ;; sprites
     (run! #(obj/draw-sprite % ctx) [score ball pdl1 pdl2])))
@@ -33,7 +33,7 @@
 (defn center-text
   "Returns the x position in a scene for text `txt` of size `size`."
   [txt size]
-  (/ (- (:width kn/game-view) (* (count txt) size 4)) 2))
+  (/ (- (:width pr/game-view) (* (count txt) size 4)) 2))
 
 (defn draw-menu-scene [ctx state]
   (let [controls (get-in state [:settings :controls])
@@ -50,7 +50,7 @@
         b1 "ENTER - SELECT                   ESC - BACK   "
         b2 (str "PLAYER1 - " p1-keys
                 "                    PLAYER2 - " p2-keys) ;; TODO: use settings
-        b3 kn/version
+        b3 pr/version
         ;; cursor (rfu/<sub [::subs/cursor])
         cursor (:cursor state)
         [menu-size hint-size] [5 3]]
@@ -70,7 +70,7 @@
      (fn [[txt ypos]]
        (lt/write-text
         ctx (center-text txt hint-size)
-        (- (:height kn/game-view) (* hint-size ypos)) txt :size hint-size ))
+        (- (:height pr/game-view) (* hint-size ypos)) txt :size hint-size ))
      [[b1 35] [b2 28] [b3 14]])
     (obj/draw-sprite cursor ctx )
     )
@@ -104,7 +104,7 @@
      (fn [[txt ypos]]
        (lt/write-text
         ctx 50
-        (- (:height kn/game-view) (* pr/grid-size 5) (* creditsize ypos))
+        (- (:height pr/game-view) (* pr/grid-size 5) (* creditsize ypos))
         txt :size creditsize))
      [[b1 21] [b2 14] [b3 7]])
     )
@@ -117,10 +117,10 @@
         ;; t2 (str (rfu/<sub [::subs/rounds]))
         t2 (str (:rounds settings))
         o1 "ROUNDS"
-        ;; o2  (str "AI " (kn/game-difficulty (rfu/<sub [::subs/difficulty])))
-        o2  (str "AI " (:difficulty settings))
+        ;; o2  (str "AI " (pr/game-difficulty (rfu/<sub [::subs/difficulty])))
+        o2  (str "AI " (pr/game-difficulty (:difficulty settings)))
         o3 "MENU"
-        b3 kn/version
+        b3 pr/version
         ;; cursor (rfu/<sub [::subs/cursor])
         cursor (:cursor state)
         [menu-size hint-size] [5 3]
@@ -138,7 +138,7 @@
         txt :size menu-size ))
      [[o1 30] [o2 35] [o3 40]])
     (lt/write-text
-     ctx (center-text b3 hint-size) (- (:height kn/game-view) (* hint-size 14))
+     ctx (center-text b3 hint-size) (- (:height pr/game-view) (* hint-size 14))
      b3 :size hint-size)
     ))
 
@@ -155,7 +155,7 @@
         t3 (str p1 " "  p2)
         o1 "PLAY AGAIN"
         o2 "MENU"
-        b3 kn/version
+        b3 pr/version
         ;; cursor (rfu/<sub [::subs/cursor])
         cursor (:cursor state)
         [menu-size hint-size] [5 3]
@@ -173,7 +173,7 @@
         txt :size menu-size ))
      [[o1 30] [o2 35]])
     (lt/write-text
-     ctx (center-text b3 hint-size) (- (:height kn/game-view) (* hint-size 14))
+     ctx (center-text b3 hint-size) (- (:height pr/game-view) (* hint-size 14))
      b3 :size hint-size)
     (obj/draw-sprite cursor ctx )
     )

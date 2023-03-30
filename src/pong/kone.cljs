@@ -10,33 +10,33 @@
    [pong.rfm.subs :as subs]
   ))
 
-(def version "v0.01")
+;; (def version "v0.01")
 
-(def game-view {:fps 60 :width 804 :height 600 })
+;; (def game-view {:fps 60 :width 804 :height 600 })
 
 
-(def game-modes #{:menu :single :versus :options :controls :credits :end })
+;; (def game-modes #{:menu :single :versus :options :controls :credits :end })
 
-(def game-difficulty ["easy" "medium" "unfair"])
+;; (def game-difficulty ["easy" "medium" "unfair"])
 
 
         ;;;; game initialization ;;;;
 
 
-(def game-border
-  (let [top (+ pr/margin-size pr/grid-size)
-        bottom (- (:height game-view) pr/margin-size pr/grid-size )
-        left pr/grid-size
-        right (- (:width game-view) (* pr/grid-size 2))]
-    {:top top :bottom bottom :left left :right right
-     :height (- bottom top) :width (- right left)}))
+;; (def game-border
+;;   (let [top (+ pr/margin-size pr/grid-size)
+;;         bottom (- (:height pr/game-view) pr/margin-size pr/grid-size )
+;;         left pr/grid-size
+;;         right (- (:width pr/game-view) (* pr/grid-size 2))]
+;;     {:top top :bottom bottom :left left :right right
+;;      :height (- bottom top) :width (- right left)}))
 
 (defn make-game-paddle [side key-up key-down]
   (let [xpos (if (= side :left)
-               (+ (:left game-border) pr/grid-size)
-               (- (:right game-border) pr/grid-size ))]
-    (obj/make-paddle xpos (/ (:height game-border) 2) obj/paddle-len
-                     key-up key-down (:top game-border) (:bottom game-border))))
+               (+ (:left pr/game-border) pr/grid-size)
+               (- (:right pr/game-border) pr/grid-size ))]
+    (obj/make-paddle xpos (/ (:height pr/game-border) 2) obj/paddle-len
+                     key-up key-down (:top pr/game-border) (:bottom pr/game-border))))
 
 (defn spawn-ball
   ([] (spawn-ball nil))
@@ -45,11 +45,11 @@
                      (= side :two) (* (/ 1 3) (dec (* (js/Math.random) 2)) js/Math.PI)
                      :else (+ (* (/ 1 3) (dec (* (js/Math.random) 2)) js/Math.PI)
                               (*(- 1 (Math/random) Math/PI))))
-         center (- (/ (:width game-view) 2) (/ pr/grid-size 2))
-         h (+ (* (Math/random) (- (:height game-border) (* 3 pr/grid-size)))
-              (:top game-border) pr/grid-size)]
-     (obj/make-ball center h 0 angle (:top game-border)
-                    (- (:bottom game-border) pr/grid-size))
+         center (- (/ (:width pr/game-view) 2) (/ pr/grid-size 2))
+         h (+ (* (Math/random) (- (:height pr/game-border) (* 3 pr/grid-size)))
+              (:top pr/game-border) pr/grid-size)]
+     (obj/make-ball center h 0 angle (:top pr/game-border)
+                    (- (:bottom pr/game-border) pr/grid-size))
      ;; (rf/dispatch [::event/ball-speed])
      ;; (js/setTimeout (rf/dispatch [:pong-rfm-events/ball-speed]) 500)
      ;; (js/setTimeout (js/alert "test") 500)
@@ -58,15 +58,14 @@
 
 
 (def cursor-vals {:width (* pr/grid-size 20) :height (* pr/grid-size 4)
-                  :thickness 5
-                  })
+                  :thickness 5})
 
 (defn make-cursor-xs [y-pos-xs]
   "Return a vector of [x y] vectors if `y-pos-xs` is given.
    Otherwise returns nil."
-  (let [xpos (/ (- (:width game-view) (:width cursor-vals)
-                           (* (:thickness cursor-vals) 2))
-                           2)]
+  (let [xpos (/ (- (:width pr/game-view) (:width cursor-vals)
+                   (* (:thickness cursor-vals) 2))
+                2)]
     (when y-pos-xs
       (mapv (fn [ypos] [xpos (* pr/grid-size ypos)]) y-pos-xs))))
 
@@ -89,8 +88,8 @@
   ;;       (if (contains? #{:single :versus} mode)
   ;;         [(make-game-paddle :left 82 68 ) (make-game-paddle :right 72 73 )
   ;;          (spawn-ball)
-  ;;          (obj/make-score (- (/ (:width game-border) 2) pr/letter-spacing)
-  ;;                          (+ (:top game-border) (* 2 pr/grid-size)) 0 0)]
+  ;;          (obj/make-score (- (/ (:width pr/game-border) 2) pr/letter-spacing)
+  ;;                          (+ (:top pr/game-border) (* 2 pr/grid-size)) 0 0)]
   ;;         nil)]
     {:state
      {:mode mode
@@ -111,8 +110,8 @@
                 :paddle-two  (make-game-paddle :right "h" "i") ;72 73 )
                 :ball (spawn-ball), :paused false})
       :score (when (contains? #{:single :versus} mode) ;; TODO: move into scene?
-                   (obj/make-score (- (/ (:width game-border) 2) pr/letter-spacing)
-                                   (+ (:top game-border) (* 2 pr/grid-size)) 0 0)
+                   (obj/make-score (- (/ (:width pr/game-border) 2) pr/letter-spacing)
+                                   (+ (:top pr/game-border) (* 2 pr/grid-size)) 0 0)
                    ;; (= mode :end)
                    ;; (if (nil? previous-state)
                    ;;   (throw (js/Error. "mode 'end' needs a previous-state supplied") )
@@ -129,30 +128,30 @@
 
 ;; (def initial-state (initialize-state :menu))
 
-        ;;;; game sounds ;;;;
+;;         ;;;; game sounds ;;;;
 
-(defn make-sound-element [sound-file-name]
-  ;; (let [sound-folder  "./resources/public/audio/"]
-  (let [sound-folder  "./audio/"] ;; start path from (index.)html file
-    (new js/Audio (str sound-folder sound-file-name))))
+;; (defn make-sound-element [sound-file-name]
+;;   ;; (let [sound-folder  "./resources/public/audio/"]
+;;   (let [sound-folder  "./audio/"] ;; start path from (index.)html file
+;;     (new js/Audio (str sound-folder sound-file-name))))
 
-(def wall-sound (make-sound-element "4391__noisecollector__pongblipf-5.wav"))
-(def paddle-sound (make-sound-element "4390__noisecollector__pongblipf-4.wav"))
-(def score-sound (make-sound-element
-                  "333785__projectsu012__8-bit-failure-sound.wav"))
-(def select-sound (make-sound-element "275896__n-audioman__coin02.wav"))
+;; (def wall-sound (make-sound-element "4391__noisecollector__pongblipf-5.wav"))
+;; (def paddle-sound (make-sound-element "4390__noisecollector__pongblipf-4.wav"))
+;; (def score-sound (make-sound-element
+;;                   "333785__projectsu012__8-bit-failure-sound.wav"))
+;; (def select-sound (make-sound-element "275896__n-audioman__coin02.wav"))
 
-(defn sound-factory [audio start stop]
-  ;; (if (.paused audio)
-    (.play audio)
-    (js/setTimeout (fn [] (.pause audio)
-                     (set! (.-currentTime audio) start )) stop))
-  ;; )
+;; (defn sound-factory [audio start stop]
+;;   ;; (if (.paused audio)
+;;     (.play audio)
+;;     (js/setTimeout (fn [] (.pause audio)
+;;                      (set! (.-currentTime audio) start )) stop))
+;;   ;; )
 
-(defn play-wall [] (sound-factory wall-sound 100 100))
-(defn play-paddle [] (sound-factory paddle-sound 100 100))
-(defn play-score [] (sound-factory score-sound 0 200))
-(defn play-select [] (sound-factory select-sound 0 200))
+;; (defn play-wall [] (sound-factory wall-sound 100 100))
+;; (defn play-paddle [] (sound-factory paddle-sound 100 100))
+;; (defn play-score [] (sound-factory score-sound 0 200))
+;; (defn play-select [] (sound-factory select-sound 0 200))
 
 
 
@@ -168,19 +167,19 @@
 
 (defn move-cursor [db dir]
   ;; (println "cursor" db dir)
-  (if (= dir :up) (play-wall) (play-paddle))
+  (if (= dir :up) (pr/play-wall) (pr/play-paddle))
   (update-in db [:state :cursor] #(obj/update-sprite % dir)))
 
 (defn switch-mode
   ;; ([db]
-  ;;  (play-select)
+  ;;  (pr/play-select)
   ;;  (let [{state :state prev :previous } (initialize-state :menu)]
   ;;    (assoc db :state state :previous prev)
   ;;    ))
   ;; (
    [db mode-vec]
   ;; (println "here")
-  (play-select)
+  (pr/play-select)
   (let [old-state (rfu/<sub [::subs/state])
         ;; current-cur (rfu/<sub [::subs/current-cur])
         current-pos (get-in old-state [:cursor :current])
@@ -196,11 +195,11 @@
   ;; )
 )
 
-(defn ball-speed-inc [db]
-  (let [speed (get-in db [:state :scene :ball :speed])
-        half-speed (/ obj/ball-speed 2)
-        new-speed (if (< speed half-speed) half-speed obj/ball-speed)]
-    (assoc-in db [:state :scene :ball :speed] new-speed)))
+;; (defn ball-speed-inc [db]
+;;   (let [speed (get-in db [:state :scene :ball :speed])
+;;         half-speed (/ obj/ball-speed 2)
+;;         new-speed (if (< speed half-speed) half-speed obj/ball-speed)]
+;;     (assoc-in db [:state :scene :ball :speed] new-speed)))
 
 
 (defn remove-pressed-key [db key]
@@ -234,9 +233,9 @@
   {:db (switch-mode db mode-vec)})
 ;; )
 
-(defn ball-speed-inc-cofx
-  [{db :db}]
-  {:db (ball-speed-inc db)})
+;; (defn ball-speed-inc-cofx
+;;   [{db :db}]
+;;   {:db (ball-speed-inc db)})
 
 
 (defn remove-pressed-key-cofx
@@ -415,13 +414,13 @@
       ;; set pause flag if out of focus
       (cond
         ;; ball paddle-1 collision
-        (and (<= bx (+ (:left game-border) (* 2 pr/grid-size)))
+        (and (<= bx (+ (:left pr/game-border) (* 2 pr/grid-size)))
              (>= (+ by pr/grid-size) p1-y)
              (<= by (+ p1-y (+ obj/paddle-len (* 2 pr/grid-size)))))
         (let [dy (- (* 0.8 (/ (- (+ by (/ pr/grid-size 2)) p1-y)
                               (+ obj/paddle-len (* pr/grid-size 2)))) 0.4)
               angle (* dy Math/PI)]
-          (play-paddle)
+          (pr/play-paddle)
           ;; (println "paddle-one")
           ;; (update-in db [:scene :ball]
           ;; (assoc tball :direction angle :speed (+ b-speed 0.5))))
@@ -431,14 +430,14 @@
                             :ball (assoc tball :direction angle
                                          :speed (+ b-speed 0.5))})))
         ;; ball paddle-1 collision
-        (and (>= bx (- (:right game-border) (* 2 pr/grid-size)))
+        (and (>= bx (- (:right pr/game-border) (* 2 pr/grid-size)))
 
              (>= (+ by pr/grid-size) p2-y)
              (<= by (+ p2-y (+ obj/paddle-len (* 2 pr/grid-size)))))
         (let [dy (- (* 0.8 (/ (- (+ by (/ pr/grid-size 2)) p2-y)
                               (+ obj/paddle-len (* pr/grid-size 2)))) 0.4)
               angle (* (- 1 dy) Math/PI)]
-          (play-paddle)
+          (pr/play-paddle)
           ;; (println "paddle-two")
           ;; (assoc-in db [:scene :ball]
           ;; (assoc tball :direction angle :speed (+ b-speed 0.5))))
@@ -448,8 +447,8 @@
                             :ball (assoc tball :direction angle
                                          :speed (+ b-speed 0.5))})))
         ;; score and respawn
-        (>= bx (- (:width game-view) (* 2 pr/grid-size)))
-        (do (play-score)
+        (>= bx (- (:width pr/game-view) (* 2 pr/grid-size)))
+        (do (pr/play-score)
             (assoc db :state (merge state
                                     {:scene (merge scene
                                                    {:ball (spawn-ball :two)
@@ -457,7 +456,7 @@
                                                     :paddle-two pd2})}
                                     {:score (obj/update-sprite score :p1)})))
         (<= bx (* 2 pr/grid-size))
-        (do (play-score)
+        (do (pr/play-score)
             (assoc db :state (merge state
                                     {:scene (merge scene
                                                    {:ball (spawn-ball :one)

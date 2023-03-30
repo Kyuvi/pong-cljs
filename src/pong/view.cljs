@@ -95,8 +95,8 @@
     (fn []
       [:div.game ;; {:style {:text-align "center"} :width 80}
        [:canvas {:id "pgcanv";; "game"
-                 :width (:width kn/game-view)
-                 :height (:height kn/game-view)
+                 :width (:width pr/game-view)
+                 :height (:height pr/game-view)
                  :style {:border "#FFF"
                          :border-style "solid"
                          :border-width "thick"

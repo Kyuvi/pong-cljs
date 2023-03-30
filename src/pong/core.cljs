@@ -7,15 +7,15 @@
    [reagent.dom :as rd]
    [re-frame.core :as rf]
    [sutils.browser :as br]
-   [pong.blkchars :as lt]
-   [pong.view :as vw]
-   [pong.kone :as kn]
-   [pong.rfm.events :as events]
-
    [sutils.rf :as rfu]
-   [pong.rfm.subs :as subs])
+   [pong.blkchars :as lt]
+   [pong.prep :as pr]
+   [pong.kone :as kn]
+   [pong.view :as vw]
 
-  )
+   [pong.rfm.events :as events]
+   [pong.rfm.subs :as subs]
+   ))
 
 (enable-console-print!)
 
@@ -98,7 +98,7 @@
 )
 
 (defonce tick (js/setInterval #(rf/dispatch [::events/tick])
-                              (/ 1000 (:fps kn/game-view))))
+                              (/ 1000 (:fps pr/game-view))))
 
 (defn run-pong []
   (rf/dispatch-sync [::events/initialize])
