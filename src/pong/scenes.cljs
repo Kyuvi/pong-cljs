@@ -13,8 +13,7 @@
             [pong.obj :as obj]
             [pong.kone :as kn]
             [pong.rfm.subs :as subs]
-
-            [sutils.canvas :as cv]) )
+            ) )
 
 
 
@@ -38,7 +37,7 @@
     ;; does not seem to draw if focused removed in "tick", (no change in state?)
     (when (or pause-flag (not (.hasFocus js/document)))
       ;; (do
-      (cv/fill-square ctx (- (/ (:width pr/game-border) 2) (* pr/grid-size 11))
+      (cvu/fill-square ctx (- (/ (:width pr/game-border) 2) (* pr/grid-size 11))
                       (- (/ (:height pr/game-border) 2) (* pr/grid-size 10))
                       (* pr/grid-size 25)
                       "#FFF")
@@ -171,7 +170,7 @@
         t2 (if (= (:mode prev) :single)
              (str  " YOU " (if (== winner 1) "WIN " "LOSE "))
              (str " PLAYER " winner " WINs "))
-        t3 (str p1 " "  p2)
+        t3 (str p1 "       "  p2)
         o1 "PLAY AGAIN"
         o2 "MENU"
         b3 pr/version
@@ -184,7 +183,7 @@
        (lt/write-text
         ctx (center-text txt pr/grid-size) (* pr/grid-size ypos)
         txt ))
-     [[t1 5] [t2 15]])
+     [[t1 5] [t2 14] [t3 21]])
     (run!
      (fn [[txt ypos]]
        (lt/write-text
