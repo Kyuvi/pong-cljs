@@ -13,7 +13,8 @@
             [pong.obj :as obj]
             [pong.kone :as kn]
             [pong.rfm.subs :as subs]
-            ) )
+
+            [sutils.canvas :as cv]) )
 
 
 
@@ -22,6 +23,7 @@
         ball (get-in state [:scene :ball])
         pdl1 (get-in state [:scene :paddle-one])
         pdl2 (get-in state [:scene :paddle-two])
+        pause-flag (get-in state [:scene :paused])
         [b-left b-right] ((juxt :left :right) pr/game-border)
         [b-top b-bot] ((juxt :top :bottom) pr/game-border)
         [b-width b-height] ((juxt :width :height) pr/game-border)
@@ -32,7 +34,20 @@
       (pr/fill-block  ctx (- (/ (:width pr/game-view) 2) (/ pr/grid-size 2)) i))
 
     ;; sprites
-    (run! #(obj/draw-sprite % ctx) [score ball pdl1 pdl2])))
+    (run! #(obj/draw-sprite % ctx) [score ball pdl1 pdl2])
+    ;; does not seem to draw if focused removed in "tick", (no change in state?)
+    (when (or pause-flag (not (.hasFocus js/document)))
+      ;; (do
+      (cv/fill-square ctx (- (/ (:width pr/game-border) 2) (* pr/grid-size 11))
+                      (- (/ (:height pr/game-border) 2) (* pr/grid-size 10))
+                      (* pr/grid-size 25)
+                      "#FFF")
+      (lt/write-text ctx (- (/ (:width pr/game-border) 2) (* pr/grid-size 10))
+                     (/ (:height pr/game-border) 2) "PAUSED" :size pr/grid-size
+                     :color "#000")
+      )
+    ;; (not (.hasFocus js/document))
+    ))
 
 (defn center-text
   "Returns the x position in a scene for text `txt` of size `size`."

@@ -227,6 +227,10 @@
   (update-in db [:key-input :pressed] #(conj % key)))
 
 
+(defn switch-pause-flag [db]
+  (update-in db [:state :scene :paused] #(if % false true)))
+
+
         ;;;; cofx functions ;;;;
 (defn no-op [{db :db :as cofx}] {:db db})
 
@@ -263,6 +267,11 @@
 (defn add-pressed-key-cofx
   [{db :db} key]
   {:db (add-pressed-key db key)})
+
+
+(defn switch-pause-flag-cofx
+  [{db :db}]
+  {:db (switch-pause-flag db)})
 
         ;;;; keymaps ;;;;
 
@@ -305,6 +314,10 @@
           "Escape" #(switch-mode-cofx % :menu)}))
 
 
+(def game-down-actions
+  (merge credit-down-actions
+         {" " #(switch-pause-flag-cofx %)}))
+
 ;; (def single-down-actions
 ;;   (let [{up :up down :down} (rfu/<sub [::subs/p-one-keys])]
 ;;     (merge credit-down-actions
@@ -327,21 +340,24 @@
 ;;     {"h"  #(move-paddle-cofx % :paddle-two :up)
 ;;      "i"  #(move-paddle-cofx % :paddle-two :down)} )))
 
-;; (def down-actions-by-mode
-;;   {:menu menu-down-actions
-;;    :single single-down-actions
-;;    :versus versus-down-actions
-;;    :options nil
-;;    :credits credit-down-actions
-;;    :end end-down-actions})
+(def down-actions-by-mode
+  {:menu menu-down-actions
+   :single game-down-actions
+   :versus  game-down-actions
+   :options nil
+   :controls nil
+   :credits credit-down-actions
+   :end end-down-actions})
 
 (defn make-down-actions-map [oup odwn tup tdwn]
   (let [single-down-actions (make-single-down-actions-map oup odwn)
         versus-down-actions (make-vs-down-actions-map
                              single-down-actions tup tdwn)]
   {:menu menu-down-actions
-   :single single-down-actions
-   :versus versus-down-actions
+   ;; :single single-down-actions
+   ;; :versus versus-down-actions
+   :single game-down-actions
+   :versus  game-down-actions
    :options nil
    :controls nil
    :credits credit-down-actions
@@ -401,7 +417,10 @@
 
 (defn update-scene [db]
   ;; (println "updated" (js/Date.now))
-  (if-not (contains? #{:single :versus} (get-in db [:state :mode]))
+  (if (or (not (contains? #{:single :versus} (get-in db [:state :mode])))
+          (get-in db [:state :scene :paused])
+          ;; might not write "paused" in game as no change in db
+          (not (.hasFocus js/document)))
     ;; (do (println "db" (get-in db [:state :mode]))
     db
     ;; )

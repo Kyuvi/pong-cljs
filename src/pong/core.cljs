@@ -88,7 +88,7 @@
   (let [player-keys (rfu/<sub [::subs/controls])
         [p1 p2] ((juxt :p1 :p2) player-keys)
         key-vec (apply concat (map (juxt :up :down) [p1 p2]))
-        menu-keys #{"Enter" "ArrowUp" "ArrowDown" "Space" "Escape"}
+        menu-keys #{"Enter" "ArrowUp" "ArrowDown" " " "Escape"}
         key-set (into menu-keys key-vec)
         ]
   (when (key-set e.key) (.preventDefault e))
