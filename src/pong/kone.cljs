@@ -11,34 +11,6 @@
    [pong.rfm.subs :as subs]
   ))
 
-;; (def version "v0.01")
-
-;; (def game-view {:fps 60 :width 804 :height 600 })
-
-
-;; (def game-modes #{:menu :single :versus :options :controls :credits :end })
-
-;; (def game-difficulty ["easy" "medium" "unfair"])
-
-
-        ;;;; game initialization ;;;;
-
-
-;; (def game-border
-;;   (let [top (+ pr/margin-size pr/grid-size)
-;;         bottom (- (:height pr/game-view) pr/margin-size pr/grid-size )
-;;         left pr/grid-size
-;;         right (- (:width pr/game-view) (* pr/grid-size 2))]
-;;     {:top top :bottom bottom :left left :right right
-;;      :height (- bottom top) :width (- right left)}))
-
-;; (def cursor-vals {:width (* pr/grid-size 20) :height (* pr/grid-size 4)
-;;                   :thickness 5})
-
-;; (def cursor-ypos {:menu [20.5 25.5 30.5 35.5]
-;;                  :options [28.5 33.5 38.5]
-;;                  :end [28.5 33.5]})
-
 (defn make-cursor-xs
   "Returns the vector of [x y] vectors for `mode`."
   [mode]
@@ -50,20 +22,6 @@
     ;; )
   ))
 
-
-;; (defn make-cursor-xs [y-pos-xs] ;; TODO: change to need only mode
-;;   "Return a vector of [x y] vectors if `y-pos-xs` is given.
-;;    Otherwise returns nil."
-;;   (let [xpos (/ (- (:width pr/game-view) (:width pr/cursor-vals)
-;;                    (* (:thickness pr/cursor-vals) 2))
-;;                 2)]
-;;     (when y-pos-xs
-;;       (mapv (fn [ypos] [xpos (* pr/grid-size ypos)]) y-pos-xs))))
-
-
-;; (def menu-cursor-pos (make-cursor-xs [20.5 25.5 30.5 35.5]))
-;; (def options-cursor-pos (make-cursor-xs [28.5 33.5 38.5]))
-;; (def end-cursor-pos (make-cursor-xs [28.5 35.5]))
 
 (defn make-game-paddle [side key-up key-down]
   (let [xpos (if (= side :left)
@@ -85,10 +43,6 @@
               (:top pr/game-border) pr/grid-size)]
      (obj/make-ball center h 0 angle (:top pr/game-border)
                     (- (:bottom pr/game-border) pr/grid-size))
-     ;; (rf/dispatch [::event/ball-speed])
-     ;; (js/setTimeout (rf/dispatch [:pong-rfm-events/ball-speed]) 500)
-     ;; (js/setTimeout (js/alert "test") 500)
-     ;; dispatch speed 500 then 2000
      )))
 
 
@@ -112,18 +66,9 @@
     {:state
      {:mode mode
       :settings settings
-      ;; (if previous-state
-      ;;             (:settings previous-state)
-      ;;             {:rounds 5 :difficulty 1
-      ;;              :controls {:p1 {:up "r" :down "d"} :p2 {:up  "h" :down "i"}}})
       :cursor (when (#{:menu :options :end} mode)
                 (obj/make-cursor (:width pr/cursor-vals) (:height pr/cursor-vals)
-                                 ;; (make-cursor-xs (mode cursor-ypos))
                                  (make-cursor-xs mode)
-                               ;; (cond (= mode :menu) menu-cursor-pos
-                               ;;       (= mode :options) options-cursor-pos
-                               ;;       (= mode :end) end-cursor-pos
-                               ;;       :else nil)
                                (:thickness pr/cursor-vals)))
       :scene (when (contains? #{:single :versus} mode)
                {:paddle-one (make-game-paddle :left pou pod) ;"r" "d");  82 68 )
@@ -131,12 +76,7 @@
                 :ball (spawn-ball), :paused false})
       :score (when (contains? #{:single :versus} mode) ;; TODO: move into scene?
                    (obj/make-score (- (/ (:width pr/game-border) 2) pr/letter-spacing)
-                                   (+ (:top pr/game-border) (* 2 pr/grid-size)) 0 0)
-                   ;; (= mode :end)
-                   ;; (if (nil? previous-state)
-                   ;;   (throw (js/Error. "mode 'end' needs a previous-state supplied") )
-                   ;;   (:score previous-state))
-                   )
+                                   (+ (:top pr/game-border) (* 2 pr/grid-size)) 0 0))
       }
      :previous (when previous-state
                  {:mode (:mode previous-state) :score (:score previous-state)})
@@ -146,32 +86,6 @@
    ))
 
 
-;; (def initial-state (initialize-state :menu))
-
-;;         ;;;; game sounds ;;;;
-
-;; (defn make-sound-element [sound-file-name]
-;;   ;; (let [sound-folder  "./resources/public/audio/"]
-;;   (let [sound-folder  "./audio/"] ;; start path from (index.)html file
-;;     (new js/Audio (str sound-folder sound-file-name))))
-
-;; (def wall-sound (make-sound-element "4391__noisecollector__pongblipf-5.wav"))
-;; (def paddle-sound (make-sound-element "4390__noisecollector__pongblipf-4.wav"))
-;; (def score-sound (make-sound-element
-;;                   "333785__projectsu012__8-bit-failure-sound.wav"))
-;; (def select-sound (make-sound-element "275896__n-audioman__coin02.wav"))
-
-;; (defn sound-factory [audio start stop]
-;;   ;; (if (.paused audio)
-;;     (.play audio)
-;;     (js/setTimeout (fn [] (.pause audio)
-;;                      (set! (.-currentTime audio) start )) stop))
-;;   ;; )
-
-;; (defn play-wall [] (sound-factory wall-sound 100 100))
-;; (defn play-paddle [] (sound-factory paddle-sound 100 100))
-;; (defn play-score [] (sound-factory score-sound 0 200))
-;; (defn play-select [] (sound-factory select-sound 0 200))
 
 
 
@@ -215,12 +129,6 @@
   ;; )
 )
 
-;; (defn ball-speed-inc [db]
-;;   (let [speed (get-in db [:state :scene :ball :speed])
-;;         half-speed (/ obj/ball-speed 2)
-;;         new-speed (if (< speed half-speed) half-speed obj/ball-speed)]
-;;     (assoc-in db [:state :scene :ball :speed] new-speed)))
-
 
 (defn remove-pressed-key [db key]
   (update-in db [:key-input :pressed] #(disj % key)))
@@ -257,10 +165,6 @@
   {:db (switch-mode db mode-vec)})
 ;; )
 
-;; (defn ball-speed-inc-cofx
-;;   [{db :db}]
-;;   {:db (ball-speed-inc db)})
-
 
 (defn remove-pressed-key-cofx
   [{db :db} key]
@@ -294,12 +198,6 @@
 ;;    "ArrowDown" #(move-cursor-cofx % :down)
 ;;    })
 
-;; (def paddle-movement-fns
-;;   [#(move-paddle-cofx % :paddle-one :up)
-;;     #(move-paddle-cofx % :paddle-one :down)
-;;    #(move-paddle-cofx % :paddle-two :up)
-;;     #(move-paddle-cofx % :paddle-two :down)
-;;    ])
 
 (def credit-down-actions
   {"Escape" #(switch-mode-cofx % :menu)})
