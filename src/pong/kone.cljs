@@ -420,118 +420,119 @@
 (defn update-scene [db]
   ;; (println "updated" (js/Date.now))
   (cond (or (not (contains? #{:single :versus} (get-in db [:state :mode])))
-          (get-in db [:state :scene :paused])
+            (get-in db [:state :scene :paused])
           ;; might not write "paused" in game as no change in db
           ;; (not (.hasFocus js/document))
-          )
+            )
     ;; (do (println "db" (get-in db [:state :mode]))
         db
-    (not (.hasFocus js/document)) (assoc-in db [:state :scene :paused] true)
+        ;; set pause flag if out of focus
+        (not (.hasFocus js/document)) (assoc-in db [:state :scene :paused] true)
     ;; )
-    :else
-    (let [state (:state db)
-          [scene settings] ((juxt :scene :settings) state)
-          score (:score state)
-          ;; settings (:settings state)
-          [difficulty rounds] ((juxt :difficulty :rounds) settings)
-          [ball old-pd1 old-pd2 ps] ((juxt :ball :paddle-one :paddle-two :paused)
-                                 scene)
-          tball (obj/update-sprite ball)
-          [bx by] (obj/get-pos tball)
-          [b-speed b-dir b-top b-bot] ((juxt :speed :direction :top :bottom)
-                                       tball)
-          pd1 (obj/update-sprite old-pd1)
-          pd2 (if (= (:mode state) :single)
-                 (paddle-ai difficulty old-pd2 by)
-                 (obj/update-sprite old-pd2))
-          [p1-y p2-y] (mapv #(second (obj/get-pos %)) [pd1 pd2])
-          ;; settings (get-in db [:state :settings])
-          ;; rounds (get-in db [:state :settings :rounds])
-
-          ;; p2-y (if (= (:mode state) :single)
-          ;;        (paddle-ai difficulty old-pd2 by)
-          ;;        old-p2-y)
-          ;; pd2 (if-not (= p2-y old-p2-y)
-          ;;       (assoc old-pd2 :pos (obj/make-spos ((obj/get-pos old-pd2) 0)
-          ;;                                          p2-y))
-          ;;       old-pd2)
-          ]
-      ;; (println "updated" (js/date.now))
-      ;; set pause flag if out of focus
-      (cond
-        ;; ball paddle-1 collision
-        (and (<= bx (+ (:left pr/game-border) (* 2 pr/grid-size)))
-             (>= (+ by pr/grid-size) p1-y)
-             (<= by (+ p1-y (+ (:len pr/paddle-vals)
-                               ;; obj/paddle-len
-                               (* 2 pr/grid-size)))))
-        (let [dy (- (* 0.8 (/ (- (+ by (/ pr/grid-size 2)) p1-y)
-                              (+ (:len pr/paddle-vals)
-                                 ;; obj/paddle-len
-                                 (* pr/grid-size 2)))) 0.4)
-              angle (* dy Math/PI)]
-          (pr/play-paddle)
-          ;; (println "paddle-one")
-          ;; (update-in db [:scene :ball]
-          ;; (assoc tball :direction angle :speed (+ b-speed 0.5))))
-          (assoc-in db [:state :scene]
-                    (merge scene
-                           {:paddle-one pd1 :paddle-two pd2
-                            :ball (assoc tball :direction angle
-                                         :speed (+ b-speed 0.5))})))
-        ;; ball paddle-1 collision
-        (and (>= bx (- (:right pr/game-border) (* 2 pr/grid-size)))
-
-             (>= (+ by pr/grid-size) p2-y)
-             (<= by (+ p2-y (+ (:len pr/paddle-vals)
-                               ;; obj/paddle-len
-                               (* 2 pr/grid-size)))))
-        (let [dy (- (* 0.8 (/ (- (+ by (/ pr/grid-size 2)) p2-y)
-                              (+(:len pr/paddle-vals)
-                                ;; obj/paddle-len
-                                (* pr/grid-size 2)))) 0.4)
-              angle (* (- 1 dy) Math/PI)]
-          (pr/play-paddle)
-          ;; (println "paddle-two")
-          ;; (assoc-in db [:scene :ball]
-          ;; (assoc tball :direction angle :speed (+ b-speed 0.5))))
-          (assoc-in db [:state :scene]
-                    (merge scene
-                           {:paddle-one pd1 :paddle-two pd2
-                            :ball (assoc tball :direction angle
-                                         :speed (+ b-speed 0.5))})))
-        ;; score and respawn
-        (>= bx (- (:width pr/game-view) (* 2 pr/grid-size)))
-        (do (pr/play-score)
-            (assoc db :state (merge state
-                                    {:scene (merge scene
-                                                   {:ball (spawn-ball :two)
-                                                    :paddle-one pd1
-                                                    :paddle-two pd2})}
-                                    {:score (obj/update-sprite score :p1)})))
-        (<= bx (* 2 pr/grid-size))
-        (do (pr/play-score)
-            (assoc db :state (merge state
-                                    {:scene (merge scene
-                                                   {:ball (spawn-ball :one)
-                                                    :paddle-one pd1
-                                                    :paddle-two pd2})}
-                                    {:score (obj/update-sprite score :p2)})))
-        ;; game end
-        (or (>= (:p1 score) rounds ) (>= (:p2 score) rounds ))
-        (let [{state :state prev :previous } (initialize-state :end state)]
-          (assoc db :state state :previous prev))
         :else
-        ;; (do  (println "next" tball)
+        (let [state (:state db)
+              [scene settings] ((juxt :scene :settings) state)
+              score (:score state)
+              ;; settings (:settings state)
+              [difficulty rounds] ((juxt :difficulty :rounds) settings)
+              [ball old-pd1 old-pd2] ((juxt :ball :paddle-one :paddle-two)
+                                         scene)
+              tball (obj/update-sprite ball)
+              [bx by] (obj/get-pos tball)
+              [b-speed b-dir b-top b-bot] ((juxt :speed :direction :top :bottom)
+                                           tball)
+              pd1 (obj/update-sprite old-pd1)
+              pd2 (if (= (:mode state) :single)
+                    (paddle-ai difficulty old-pd2 by)
+                    (obj/update-sprite old-pd2))
+              [p1-y p2-y] (mapv #(second (obj/get-pos %)) [pd1 pd2])
+              ;; settings (get-in db [:state :settings])
+              ;; rounds (get-in db [:state :settings :rounds])
+
+              ;; p2-y (if (= (:mode state) :single)
+              ;;        (paddle-ai difficulty old-pd2 by)
+              ;;        old-p2-y)
+              ;; pd2 (if-not (= p2-y old-p2-y)
+              ;;       (assoc old-pd2 :pos (obj/make-spos ((obj/get-pos old-pd2) 0)
+              ;;                                          p2-y))
+              ;;       old-pd2)
+              ]
+          ;; (println "updated" (js/date.now))
+          (cond
+            ;; ball paddle-1 collision
+            (and (<= bx (+ (:left pr/game-border) (* 2 pr/grid-size)))
+                 (>= (+ by pr/grid-size) p1-y)
+                 (<= by (+ p1-y (+ (:len pr/paddle-vals)
+                                   ;; obj/paddle-len
+                                   (* 2 pr/grid-size)))))
+            (let [dy (- (* 0.8 (/ (- (+ by (/ pr/grid-size 2)) p1-y)
+                                  (+ (:len pr/paddle-vals)
+                                     ;; obj/paddle-len
+                                     (* pr/grid-size 2)))) 0.4)
+                  angle (* dy Math/PI)]
+              (pr/play-paddle)
+              ;; (println "paddle-one")
+              ;; (update-in db [:scene :ball]
+              ;; (assoc tball :direction angle :speed (+ b-speed 0.5))))
+              (assoc-in db [:state :scene]
+                        (merge scene
+                               {:paddle-one pd1 :paddle-two pd2
+                                :ball (assoc tball :direction angle
+                                             :speed (+ b-speed 0.5))})))
+            ;; ball paddle-1 collision
+            (and (>= bx (- (:right pr/game-border) (* 2 pr/grid-size)))
+
+                 (>= (+ by pr/grid-size) p2-y)
+                 (<= by (+ p2-y (+ (:len pr/paddle-vals)
+                                   ;; obj/paddle-len
+                                   (* 2 pr/grid-size)))))
+            (let [dy (- (* 0.8 (/ (- (+ by (/ pr/grid-size 2)) p2-y)
+                                  (+(:len pr/paddle-vals)
+                                    ;; obj/paddle-len
+                                    (* pr/grid-size 2)))) 0.4)
+                  angle (* (- 1 dy) Math/PI)]
+              (pr/play-paddle)
+              ;; (println "paddle-two")
+              ;; (assoc-in db [:scene :ball]
+              ;; (assoc tball :direction angle :speed (+ b-speed 0.5))))
+              (assoc-in db [:state :scene]
+                        (merge scene
+                               {:paddle-one pd1 :paddle-two pd2
+                                :ball (assoc tball :direction angle
+                                             :speed (+ b-speed 0.5))})))
+            ;; score and respawn
+            (>= bx (- (:width pr/game-view) (* 2 pr/grid-size)))
+            (do (pr/play-score)
+                (assoc db :state
+                       (merge state
+                              {:scene (merge scene {:ball (spawn-ball :two)
+                                                    :paddle-one pd1
+                                                    :paddle-two pd2})}
+                              {:score (obj/update-sprite score :p1)})))
+            (<= bx (* 2 pr/grid-size))
+            (do (pr/play-score)
+                (assoc db :state
+                       (merge state
+                              {:scene (merge scene {:ball (spawn-ball :one)
+                                                    :paddle-one pd1
+                                                    :paddle-two pd2})}
+                              {:score (obj/update-sprite score :p2)})))
+            ;; game end
+            (or (>= (:p1 score) rounds ) (>= (:p2 score) rounds ))
+            (let [{state :state prev :previous } (initialize-state :end state)]
+              (assoc db :state state :previous prev))
+
+            :else ;; update paddles and ball
+            ;; (do  (println "next" tball)
             (assoc-in db [:state :scene ]
                       (merge scene {:paddle-one pd1
                                     :paddle-two pd2 :ball tball}))
-;; )
+            ;; )
 
-        ;;
+            ;;
+            ))
+        ;; (update-in db [:state :scene :ball] #(obj/update-sprite %) )
         ))
-    ;; (update-in db [:state :scene :ball] #(obj/update-sprite %) )
-    ))
 
 (defn update-scene-cofx
   [{db :db}]
