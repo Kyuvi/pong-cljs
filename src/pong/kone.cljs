@@ -417,13 +417,16 @@
 
 (defn update-scene [db]
   ;; (println "updated" (js/Date.now))
-  (if (or (not (contains? #{:single :versus} (get-in db [:state :mode])))
+  (cond (or (not (contains? #{:single :versus} (get-in db [:state :mode])))
           (get-in db [:state :scene :paused])
           ;; might not write "paused" in game as no change in db
-          (not (.hasFocus js/document)))
+          ;; (not (.hasFocus js/document))
+          )
     ;; (do (println "db" (get-in db [:state :mode]))
-    db
+        db
+    (not (.hasFocus js/document)) (assoc-in db [:state :scene :paused] true)
     ;; )
+    :else
     (let [state (:state db)
           [scene settings] ((juxt :scene :settings) state)
           score (:score state)
