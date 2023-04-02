@@ -101,19 +101,21 @@
                         :credits :end} mode)
           (str "mode " mode
                " not one of ':menu :single :versus :options :credits :end'"))
-  ;; (let [[pd1 pd2 ball score]
-  ;;       (if (contains? #{:single :versus} mode)
-  ;;         [(make-game-paddle :left 82 68 ) (make-game-paddle :right 72 73 )
-  ;;          (spawn-ball)
-  ;;          (obj/make-score (- (/ (:width pr/game-border) 2) pr/letter-spacing)
-  ;;                          (+ (:top pr/game-border) (* 2 pr/grid-size)) 0 0)]
-  ;;         nil)]
-    {:state
-     {:mode mode
-      :settings (if previous-state
+  (let [settings (if previous-state
                   (:settings previous-state)
                   {:rounds 5 :difficulty 1
                    :controls {:p1 {:up "r" :down "d"} :p2 {:up  "h" :down "i"}}})
+        controls (:controls settings)
+        [pou pod] ((juxt :up :down) (:p1 controls))
+        [ptu ptd] ((juxt :up :down) (:p2 controls))
+        ]
+    {:state
+     {:mode mode
+      :settings settings
+      ;; (if previous-state
+      ;;             (:settings previous-state)
+      ;;             {:rounds 5 :difficulty 1
+      ;;              :controls {:p1 {:up "r" :down "d"} :p2 {:up  "h" :down "i"}}})
       :cursor (when (#{:menu :options :end} mode)
                 (obj/make-cursor (:width pr/cursor-vals) (:height pr/cursor-vals)
                                  ;; (make-cursor-xs (mode cursor-ypos))
@@ -124,8 +126,8 @@
                                ;;       :else nil)
                                (:thickness pr/cursor-vals)))
       :scene (when (contains? #{:single :versus} mode)
-               {:paddle-one (make-game-paddle :left "r" "d");  82 68 )
-                :paddle-two  (make-game-paddle :right "h" "i") ;72 73 )
+               {:paddle-one (make-game-paddle :left pou pod) ;"r" "d");  82 68 )
+                :paddle-two  (make-game-paddle :right ptu ptd) ; "h" "i") ;72 73 )
                 :ball (spawn-ball), :paused false})
       :score (when (contains? #{:single :versus} mode) ;; TODO: move into scene?
                    (obj/make-score (- (/ (:width pr/game-border) 2) pr/letter-spacing)
@@ -140,7 +142,7 @@
                  {:mode (:mode previous-state) :score (:score previous-state)})
      :key-input {:pressed #{} :single #{}}
      }
-    ;; )
+    )
    ))
 
 
