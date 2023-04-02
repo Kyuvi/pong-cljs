@@ -26,6 +26,7 @@
         [b-left b-right] ((juxt :left :right) pr/game-border)
         [b-top b-bot] ((juxt :top :bottom) pr/game-border)
         [b-width b-height] ((juxt :width :height) pr/game-border)
+        text-size 5
         ]
     (pr/draw-blk-line ctx b-left pr/margin-size b-right pr/margin-size)
     (pr/draw-blk-line ctx b-left b-bot b-right b-bot)
@@ -35,7 +36,8 @@
     ;; sprites
     (run! #(obj/draw-sprite % ctx) [score ball pdl1 pdl2])
     ;; does not seem to draw if focused removed in "tick", (no change in state?)
-    (when (or pause-flag (not (.hasFocus js/document)))
+    ;; (when (or pause-flag (not (.hasFocus js/document)))
+    (when pause-flag
       ;; (do
       (cvu/fill-square ctx (- (/ (:width pr/game-border) 2) (* pr/grid-size 11))
                       (- (/ (:height pr/game-border) 2) (* pr/grid-size 10))
@@ -44,6 +46,10 @@
       (lt/write-text ctx (- (/ (:width pr/game-border) 2) (* pr/grid-size 10))
                      (/ (:height pr/game-border) 2) "PAUSED" :size pr/grid-size
                      :color "#000")
+      (lt/write-text ctx (- (/ (:width pr/game-border) 2) (- (* pr/grid-size 11) 2))
+                     (+ (/ (:height pr/game-border) 2) (* pr/grid-size 9) )
+                     "SPACE - UNPAUSE"
+                     :size text-size :color "#000")
       )
     ;; (not (.hasFocus js/document))
     ))
@@ -65,7 +71,7 @@
         o2 "2P START"
         o3 "OPTIONS"
         o4 "CREDITS"
-        b1 "ENTER - SELECT                   ESC - BACK   "
+        b1 "ENTER - SELECT   SPACE - PAUSE   ESC - BACK   "
         b2 (str "PLAYER1 - " p1-keys
                 "                    PLAYER2 - " p2-keys) ;; TODO: use settings
         b3 pr/version
