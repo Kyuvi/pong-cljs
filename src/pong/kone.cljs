@@ -232,7 +232,8 @@
 (def end-down-actions
   (merge cursor-screen-actions credit-down-actions
          {"Enter" #(switch-mode-cofx % [:previous :menu])
-          "Escape" #(switch-mode-cofx % :menu)}))
+          ;; "Escape" #(switch-mode-cofx % :menu)
+          }))
 
 
 (def game-down-actions
