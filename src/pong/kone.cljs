@@ -267,7 +267,7 @@
   {:menu menu-down-actions
    :single game-down-actions
    :versus  game-down-actions
-   :options nil
+   :options options-down-actions
    :controls nil
    :credits credit-down-actions
    :end end-down-actions})
