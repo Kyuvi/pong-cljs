@@ -136,16 +136,37 @@
 
 
 (defn draw-options-scene [ctx state]
-  (let [settings (:settings state)
+  (let [{:keys [settings cursor]} state
         t1 "OPTIONS"
         ;; t2 (str (rfu/<sub [::subs/rounds]))
         t2 (str (:rounds settings))
-        o1 "ROUNDS"
+        o1 "TO WIN"
         ;; o2  (str "AI " (pr/game-difficulty (rfu/<sub [::subs/difficulty])))
         o2  (str "AI " (pr/game-difficulty (:difficulty settings)))
-        o3 "MENU"
+        o3 "CONTROLS"
+        o4 "MENU"
         b3 pr/version
         ;; cursor (rfu/<sub [::subs/cursor])
+        ;; cursor (:cursor state)
+        [menu-size hint-size] [5 3]
+        ]
+    (run!
+     (fn [[txt ypos]]
+       (lt/write-text
+        ctx (center-text txt pr/grid-size) (* pr/grid-size ypos)
+        txt ))
+     [[t1 7] [t2 15]])
+    (run!
+     (fn [[txt ypos]]
+       (lt/write-text
+        ctx (center-text txt menu-size) (* pr/grid-size ypos)
+        txt :size menu-size ))
+     [[o1 22] [o2 27] [o3 32] [o4 37]])
+    (lt/write-text
+     ctx (center-text b3 hint-size) (- (:height pr/game-view) (* hint-size 14))
+     b3 :size hint-size)
+    (obj/draw-sprite cursor ctx )
+    ))
         cursor (:cursor state)
         [menu-size hint-size] [5 3]
         ]

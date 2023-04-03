@@ -36,6 +36,8 @@
               (scn/draw-game-scene ctx state)
               :credits
               (scn/draw-credits-scene ctx)
+              :options
+              (scn/draw-options-scene ctx state)
               :end
               (scn/draw-end-scene ctx state)
               :else

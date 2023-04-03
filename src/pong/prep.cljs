@@ -36,7 +36,10 @@
    :left 20 })
 
 (def cursor-ypos "Map of y positons vectors for relevant modes."
-  {:menu [20.5 25.5 30.5 35.5] :options [28.5 33.5 38.5] :end [28.5 33.5]})
+  {:menu [20.5 25.5 30.5 35.5]
+   :options [20.5 25.5 30.5 35.5]; [28.5 33.5 38.5]
+   :controls [20.5 25.5 30.5 35.5]
+   :end [28.5 33.5]})
 
 
 (def paddle-vals "Values of paddle attributes." {:len (* 8 grid-size) :step 10})

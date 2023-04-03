@@ -51,7 +51,7 @@
 (defn initialize-state
   ([mode] (initialize-state mode nil))
   ([mode previous-state]
-   (assert (contains? #{:menu :single :versus ;; :options :controls
+   (assert (contains? #{:menu :single :versus :options ;; :controls
                         :credits :end} mode)
           (str "mode " mode
                " not one of ':menu :single :versus :options :credits :end'"))
@@ -131,6 +131,26 @@
   ;; )
 )
 
+(defn handle-options-enter [db]
+  (let [cur-state (:state db)
+        current-pos (get-in cur-state [:cursor :current])
+        {:keys [rounds difficulty]} (:settings cur-state)
+        max-diffc (dec (count pr/game-difficulty ))]
+    ;; (pr/play-select)
+    (case current-pos
+      0 (let [temp-rounds (inc rounds)
+            new-rounds (cond (= temp-rounds ##Inf) 2
+                             (< temp-rounds 16) temp-rounds
+                             (= temp-rounds 16) ##Inf)]
+          (pr/play-select)
+          (assoc-in db [:state :settings :rounds] new-rounds))
+      1 (let [temp-diffc (inc difficulty)
+              new-diffc (if (> temp-diffc max-diffc) 0 temp-diffc)]
+          (pr/play-select)
+          (assoc-in db [:state :settings :difficulty] new-diffc))
+      2 (switch-mode db :controls)
+      3 (switch-mode db :menu))))
+
 
 (defn remove-pressed-key [db key]
   (update-in db [:key-input :pressed] #(disj % key)))
@@ -167,6 +187,9 @@
   {:db (switch-mode db mode-vec)})
 ;; )
 
+(defn handle-options-enter-cofx
+  [{db :db}]
+  {:db (handle-options-enter db)})
 
 (defn remove-pressed-key-cofx
   [{db :db} key]
@@ -206,9 +229,7 @@
 
 (def options-down-actions
   (merge cursor-screen-actions credit-down-actions
-         {
-         ;; {"Enter" #(switch-mode-cofx % [:previous :menu])
-         }))
+         {"Enter" #(handle-options-enter-cofx %)}))
 
 (def end-down-actions
   (merge cursor-screen-actions credit-down-actions
