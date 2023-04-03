@@ -75,7 +75,6 @@
         b2 (str "PLAYER1 - " p1-keys
                 "                    PLAYER2 - " p2-keys) ;; TODO: use settings
         b3 pr/version
-        ;; cursor (rfu/<sub [::subs/cursor])
         cursor (:cursor state)
         [menu-size hint-size] [5 3]]
     (run!
@@ -102,7 +101,7 @@
 
 (defn draw-credits-scene [ctx]
   (let [t1 "PONG IN CLJS"
-        m1 "This is an attempt at pong using clojurescript, Reagent, "
+        m1 "This is an attempt at pong using clojurescript, Reagent,"
         m2 "and Re-frame. Beware the enemy AI!"
         m3 "You can find more information about the project on it's"
         m4 "codeberg page:"
@@ -138,16 +137,12 @@
 (defn draw-options-scene [ctx state]
   (let [{:keys [settings cursor]} state
         t1 "OPTIONS"
-        ;; t2 (str (rfu/<sub [::subs/rounds]))
         t2 (str (:rounds settings))
         o1 "TO WIN"
-        ;; o2  (str "AI " (pr/game-difficulty (rfu/<sub [::subs/difficulty])))
         o2  (str "AI " (pr/game-difficulty (:difficulty settings)))
         o3 "CONTROLS"
         o4 "MENU"
         b3 pr/version
-        ;; cursor (rfu/<sub [::subs/cursor])
-        ;; cursor (:cursor state)
         [menu-size hint-size] [5 3]
         ]
     (run!
@@ -189,9 +184,7 @@
 
 (defn draw-end-scene [ctx state]
   (let [prev (rfu/<sub [::subs/previous])
-        ;; prev-score  (:score prev)
         {:keys [p1 p2]}  (:score prev)
-        ;; winner (if (> (:p1 prev-score) (:p2 prev-score)) 1 2)
         winner (if (> p1 p2) 1 2)
         t1  "GAMEOVER"
         t2 (if (= (:mode prev) :single)
@@ -201,7 +194,6 @@
         o1 "PLAY AGAIN"
         o2 "MENU"
         b3 pr/version
-        ;; cursor (rfu/<sub [::subs/cursor])
         cursor (:cursor state)
         [menu-size hint-size] [5 3]
         ]

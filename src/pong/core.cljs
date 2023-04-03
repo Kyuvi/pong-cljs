@@ -33,7 +33,7 @@
   ;; [:div {:style {:position "relative" :width "100%"
   ;;                :bottom 0 :left 0 :height 150}}
   ;; <h4> "tesnt"</h4>
-   [:h4 "Copyright© 2023 " [:a {:href "https://codeberg.org/Kyuvi" } "Kyuvi"]
+   [:h4 "Copyright© 2023 " [:a {:href "https://codeberg.org/Kyuvi"} "Kyuvi"]
     ]
    [:p
     "This software is released under the "
@@ -86,7 +86,6 @@
   "Dispatch a key event."
   [e kw]
   (let [player-keys (rfu/<sub [::subs/controls])
-        ;; [p1 p2] ((juxt :p1 :p2) player-keys)
         {:keys [p1 p2]}  player-keys
         key-vec (apply concat (map (juxt :up :down) [p1 p2]))
         menu-keys #{"Enter" "ArrowUp" "ArrowDown" " " "Escape"}

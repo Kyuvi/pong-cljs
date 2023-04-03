@@ -118,11 +118,9 @@
         ;; current-cur (rfu/<sub [::subs/current-cur])
         current-pos (get-in old-state [:cursor :current])
         temp-mode (if (vector? mode-vec) (mode-vec current-pos) mode-vec)
-        ;; new-state (initialize-state new-mode old-state)] ;; TODO: destructure?
         new-mode (if (= :previous temp-mode)
                    (rfu/<sub [::subs/previous-mode]) temp-mode)
-        ;; {state :state prev :previous } (initialize-state new-mode old-state)]
-        {:keys [state  previous]} (initialize-state new-mode old-state)]
+        {:keys [state previous]} (initialize-state new-mode old-state)]
     ;; (assoc db :state (:state new-state) :previous (:previous new-state))))
   (println current-pos new-mode)
   ;; (assoc db :state state :previous prev)
@@ -158,12 +156,12 @@
 (defn add-pressed-key [db key]
   (update-in db [:key-input :pressed] #(conj % key)))
 
-
 (defn switch-pause-flag [db]
   (update-in db [:state :scene :paused] #(if % false true)))
 
 
         ;;;; cofx functions ;;;;
+
 (defn no-op [{db :db :as cofx}] {:db db})
 
 (defn move-paddle-cofx
@@ -321,7 +319,6 @@
                     1 (:step pr/paddle-vals)
                     2 (*  (:step pr/paddle-vals) 3 ))
         [px py] (obj/get-pos paddle)
-        ;; [size top bottom] ((juxt :size :top :bottom) paddle)
         {:keys [size top bottom]} paddle
         center-delta (- (+ ball-y pr/grid-size) py (/ (:len pr/paddle-vals)
                                                       ;; obj/paddle-len
@@ -353,11 +350,8 @@
     ;; )
         :else
         (let [cur-state (:state db)
-              ;; [scene settings] ((juxt :scene :settings) state)
               {:keys [scene settings]} cur-state
               score (:score cur-state)
-              ;; settings (:settings state)
-              ;; [difficulty rounds] ((juxt :difficulty :rounds) settings)
               {:keys [difficulty rounds]} settings
               [ball old-pd1 old-pd2] ((juxt :ball :paddle-one :paddle-two)
                                          scene)
@@ -370,16 +364,6 @@
                     (paddle-ai difficulty old-pd2 by)
                     (obj/update-sprite old-pd2))
               [p1-y p2-y] (mapv #(second (obj/get-pos %)) [pd1 pd2])
-              ;; settings (get-in db [:state :settings])
-              ;; rounds (get-in db [:state :settings :rounds])
-
-              ;; p2-y (if (= (:mode cur-state) :single)
-              ;;        (paddle-ai difficulty old-pd2 by)
-              ;;        old-p2-y)
-              ;; pd2 (if-not (= p2-y old-p2-y)
-              ;;       (assoc old-pd2 :pos (obj/make-spos ((obj/get-pos old-pd2) 0)
-              ;;                                          p2-y))
-              ;;       old-pd2)
               ]
           ;; (println "updated" (js/date.now))
           (cond
