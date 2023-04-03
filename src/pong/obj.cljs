@@ -35,7 +35,8 @@
   (get-pos [sp] (get-pos (:pos sp)))
   (draw-sprite [sp ctx]
     (let [[x y] (get-pos sp)
-          [p1 p2] ((juxt :p1 :p2) sp)
+          ;; [p1 p2] ((juxt :p1 :p2) sp)
+          {:keys [p1 p2]} sp
           offset (dec (count (str p1)))]
       (lt/write-text ctx (- x (* 4 pr/grid-size offset)) y (str p1 " " p2))
       ))
@@ -58,7 +59,8 @@
     (let [[x y] (get-pos sp)
           pressed-set (rfu/<sub [::subs/pressed])
           [kup kdn] ((juxt :key-up :key-down) sp)
-          [size top bottom] ((juxt :size :top :bottom) sp)
+          ;; [size top bottom] ((juxt :size :top :bottom) sp)
+          {:keys [size top bottom]} sp
           ;; nx (if (.-isDown kup) (- y (:step pr/paddle-vals)) )
           ty (cond (pressed-set kup) (- y (:step pr/paddle-vals))
                    (pressed-set kdn) (+ y (:step pr/paddle-vals))
@@ -73,7 +75,8 @@
    ) )
   (update-sprite [sp dir]
     (let [[x y] (get-pos sp)
-          [size top bottom] ((juxt :size :top :bottom) sp)
+          ;; [size top bottom] ((juxt :size :top :bottom) sp)
+          {:keys [size top bottom]} sp
           ty (cond (= dir :up) (- y (:step pr/paddle-vals))
                    (= dir :down) (+ y (:step pr/paddle-vals))
                    :else y)
@@ -122,9 +125,11 @@
 (defrecord Cursor [w h pos-xs size color current timeout]
   SpriteProtocol
   (draw-sprite [sp ctx]
-    (let [[w h size color] ((juxt :w :h :size :color) sp)
-          pos-xs (:pos-xs sp)
-          current (:current sp)
+    (let [
+          ;; [w h size color] ((juxt :w :h :size :color) sp)
+          ;; pos-xs (:pos-xs sp)
+          ;; current (:current sp)
+          {:keys [w h size color pos-xs current]} sp
           [x y] (pos-xs current)]
       ;; (dorun (map (fn [v]
       (run! (fn [v]
@@ -151,7 +156,9 @@
   ;;     (assoc sp :timeout ntime :current ncurr)))
 
   (update-sprite [sp dir]
-    (let [[current length pos-xs] ((juxt :current :timeout :pos-xs) sp)
+    (let [
+          ;; [current length pos-xs] ((juxt :current :timeout :pos-xs) sp)
+          {:keys [current length pos-xs]} sp
           pos-len (count pos-xs)
           tcurr (case dir
                   :up (dec current);; add play sound

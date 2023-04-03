@@ -121,10 +121,12 @@
         ;; new-state (initialize-state new-mode old-state)] ;; TODO: destructure?
         new-mode (if (= :previous temp-mode)
                    (rfu/<sub [::subs/previous-mode]) temp-mode)
-        {state :state prev :previous } (initialize-state new-mode old-state)]
+        ;; {state :state prev :previous } (initialize-state new-mode old-state)]
+        {:keys [state  previous]} (initialize-state new-mode old-state)]
     ;; (assoc db :state (:state new-state) :previous (:previous new-state))))
   (println current-pos new-mode)
-  (assoc db :state state :previous prev)
+  ;; (assoc db :state state :previous prev)
+  (assoc db :state state :previous previous)
   )
   ;; )
 )
@@ -298,7 +300,8 @@
                     1 (:step pr/paddle-vals)
                     2 (*  (:step pr/paddle-vals) 3 ))
         [px py] (obj/get-pos paddle)
-        [size top bottom] ((juxt :size :top :bottom) paddle)
+        ;; [size top bottom] ((juxt :size :top :bottom) paddle)
+        {:keys [size top bottom]} paddle
         center-delta (- (+ ball-y pr/grid-size) py (/ (:len pr/paddle-vals)
                                                       ;; obj/paddle-len
                                                       2))
@@ -328,11 +331,13 @@
         (not (.hasFocus js/document)) (assoc-in db [:state :scene :paused] true)
     ;; )
         :else
-        (let [state (:state db)
-              [scene settings] ((juxt :scene :settings) state)
-              score (:score state)
+        (let [cur-state (:state db)
+              ;; [scene settings] ((juxt :scene :settings) state)
+              {:keys [scene settings]} cur-state
+              score (:score cur-state)
               ;; settings (:settings state)
-              [difficulty rounds] ((juxt :difficulty :rounds) settings)
+              ;; [difficulty rounds] ((juxt :difficulty :rounds) settings)
+              {:keys [difficulty rounds]} settings
               [ball old-pd1 old-pd2] ((juxt :ball :paddle-one :paddle-two)
                                          scene)
               tball (obj/update-sprite ball)
@@ -340,14 +345,14 @@
               [b-speed b-dir b-top b-bot] ((juxt :speed :direction :top :bottom)
                                            tball)
               pd1 (obj/update-sprite old-pd1)
-              pd2 (if (= (:mode state) :single)
+              pd2 (if (= (:mode cur-state) :single)
                     (paddle-ai difficulty old-pd2 by)
                     (obj/update-sprite old-pd2))
               [p1-y p2-y] (mapv #(second (obj/get-pos %)) [pd1 pd2])
               ;; settings (get-in db [:state :settings])
               ;; rounds (get-in db [:state :settings :rounds])
 
-              ;; p2-y (if (= (:mode state) :single)
+              ;; p2-y (if (= (:mode cur-state) :single)
               ;;        (paddle-ai difficulty old-pd2 by)
               ;;        old-p2-y)
               ;; pd2 (if-not (= p2-y old-p2-y)
@@ -402,7 +407,7 @@
             (>= bx (- (:width pr/game-view) (* 2 pr/grid-size)))
             (do (pr/play-score)
                 (assoc db :state
-                       (merge state
+                       (merge cur-state
                               {:scene (merge scene {:ball (spawn-ball :two)
                                                     :paddle-one pd1
                                                     :paddle-two pd2})}
@@ -410,15 +415,17 @@
             (<= bx (* 2 pr/grid-size))
             (do (pr/play-score)
                 (assoc db :state
-                       (merge state
+                       (merge cur-state
                               {:scene (merge scene {:ball (spawn-ball :one)
                                                     :paddle-one pd1
                                                     :paddle-two pd2})}
                               {:score (obj/update-sprite score :p2)})))
             ;; game end
             (or (>= (:p1 score) rounds ) (>= (:p2 score) rounds ))
-            (let [{state :state prev :previous } (initialize-state :end state)]
-              (assoc db :state state :previous prev))
+            ;; (let [{state :state prev :previous } (initialize-state :end cur-state)]
+              ;; (assoc db :state state :previous prev))
+            (let [{:keys [state previous]} (initialize-state :end cur-state)]
+              (assoc db :state state :previous previous))
 
             :else ;; update paddles and ball
             ;; (do  (println "next" tball)
