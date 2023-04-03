@@ -245,15 +245,15 @@
 ;;     {"r"  #(move-paddle-cofx % :paddle-one :up)
 ;;      "d"  #(move-paddle-cofx % :paddle-one :down)})))
 
-(defn make-single-down-actions-map [up down]
-    (merge credit-down-actions
-    {up  #(move-paddle-cofx % :paddle-one :up)
-     down  #(move-paddle-cofx % :paddle-one :down)}))
+;; (defn make-single-down-actions-map [up down]
+;;     (merge credit-down-actions
+;;     {up  #(move-paddle-cofx % :paddle-one :up)
+;;      down  #(move-paddle-cofx % :paddle-one :down)}))
 
-(defn make-vs-down-actions-map [single-map tup tdown]
-    (merge single-map
-    {tup  #(move-paddle-cofx % :paddle-two :up)
-     tdown  #(move-paddle-cofx % :paddle-two :down)}))
+;; (defn make-vs-down-actions-map [single-map tup tdown]
+;;     (merge single-map
+;;     {tup  #(move-paddle-cofx % :paddle-two :up)
+;;      tdown  #(move-paddle-cofx % :paddle-two :down)}))
 
 ;; (def versus-down-actions
 ;;   (let [{tup :up tdown :down} (rfu/<sub [::subs/p-one-keys])]
@@ -270,19 +270,19 @@
    :credits credit-down-actions
    :end end-down-actions})
 
-(defn make-down-actions-map [oup odwn tup tdwn]
-  (let [single-down-actions (make-single-down-actions-map oup odwn)
-        versus-down-actions (make-vs-down-actions-map
-                             single-down-actions tup tdwn)]
-  {:menu menu-down-actions
-   ;; :single single-down-actions
-   ;; :versus versus-down-actions
-   :single game-down-actions
-   :versus  game-down-actions
-   :options nil
-   :controls nil
-   :credits credit-down-actions
-   :end end-down-actions}))
+;; (defn make-down-actions-map [oup odwn tup tdwn]
+;;   (let [single-down-actions (make-single-down-actions-map oup odwn)
+;;         versus-down-actions (make-vs-down-actions-map
+;;                              single-down-actions tup tdwn)]
+;;   {:menu menu-down-actions
+;;    ;; :single single-down-actions
+;;    ;; :versus versus-down-actions
+;;    :single game-down-actions
+;;    :versus  game-down-actions
+;;    :options nil
+;;    :controls nil
+;;    :credits credit-down-actions
+;;    :end end-down-actions}))
 
 (defn handle-key-down
   [{db :db :as cofx} kw {:keys [event key shift alt] :as data}]
@@ -290,12 +290,12 @@
         {ptu :up ptd :down} (rfu/<sub [::subs/p-two-keys])
         mode (:mode (:state db))
         ckey-set (if (= mode :versus) #{pou pod ptu ptd} #{pou pod})
-        down-actions (make-down-actions-map pou pod ptu ptd)
-        ;; action (get-in down-actions-by-mode [(:mode (:state db)) key ] no-op)]
-        action (get-in down-actions [(:mode (:state db)) key ] no-op)]
+        ;; down-actions (make-down-actions-map pou pod ptu ptd)
+        action (get-in down-actions-by-mode [(:mode (:state db)) key] no-op)]
+        ;; action (get-in down-actions [(:mode (:state db)) key ] no-op)]
     (println action)
     (if (ckey-set key)
-      (add-pressed-key-cofx cofx key) ;; gives cleaner response in game
+      (add-pressed-key-cofx cofx key) ;; seems to give cleaner response in game
       (action cofx))))
 
 (defn handle-key-up
