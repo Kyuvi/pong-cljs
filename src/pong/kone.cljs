@@ -23,31 +23,6 @@
   ))
 
 
-(defn make-game-paddle [side key-up key-down]
-  (let [xpos (if (= side :left)
-               (+ (:left pr/game-border) pr/grid-size)
-               (- (:right pr/game-border) pr/grid-size ))]
-    (obj/make-paddle xpos (/ (:height pr/game-border) 2) (:len pr/paddle-vals) ;;obj/paddle-len
-                     key-up key-down
-                     (:top pr/game-border) (:bottom pr/game-border))))
-
-(defn spawn-ball
-  ([] (spawn-ball nil))
-  ([side]
-   (let [angle (cond (= side :one) (* (/ 1 3) (+ (* (js/Math.random) 2) 2) js/Math.PI)
-                     (= side :two) (* (/ 1 3) (dec (* (js/Math.random) 2)) js/Math.PI)
-                     :else (+ (* (/ 1 3) (dec (* (js/Math.random) 2)) js/Math.PI)
-                              (*(- 1 (Math/random) Math/PI))))
-         center (- (/ (:width pr/game-view) 2) (/ pr/grid-size 2))
-         h (+ (* (Math/random) (- (:height pr/game-border) (* 3 pr/grid-size)))
-              (:top pr/game-border) pr/grid-size)]
-     (obj/make-ball center h 0 angle (:top pr/game-border)
-                    (- (:bottom pr/game-border) pr/grid-size))
-     )))
-
-
-
-
 (defn initialize-state
   ([mode] (initialize-state mode nil))
   ([mode previous-state]
@@ -71,9 +46,9 @@
                                  (make-cursor-xs mode)
                                (:thickness pr/cursor-vals)))
       :scene (when (contains? #{:single :versus} mode)
-               {:paddle-one (make-game-paddle :left pou pod) ;"r" "d");  82 68 )
-                :paddle-two  (make-game-paddle :right ptu ptd) ; "h" "i") ;72 73 )
-                :ball (spawn-ball), :paused false})
+               {:paddle-one (obj/make-game-paddle :left pou pod) ;"r" "d");  82 68 )
+                :paddle-two  (obj/make-game-paddle :right ptu ptd) ; "h" "i") ;72 73 )
+                :ball (obj/spawn-ball), :paused false})
       :score (when (contains? #{:single :versus} mode) ;; TODO: move into scene?
                    (obj/make-score (- (/ (:width pr/game-border) 2) pr/letter-spacing)
                                    (+ (:top pr/game-border) (* 2 pr/grid-size)) 0 0))
@@ -414,7 +389,7 @@
             (do (pr/play-score)
                 (assoc db :state
                        (merge cur-state
-                              {:scene (merge scene {:ball (spawn-ball :two)
+                              {:scene (merge scene {:ball (obj/spawn-ball :two)
                                                     :paddle-one pd1
                                                     :paddle-two pd2})}
                               {:score (obj/update-sprite score :p1)})))
@@ -422,7 +397,7 @@
             (do (pr/play-score)
                 (assoc db :state
                        (merge cur-state
-                              {:scene (merge scene {:ball (spawn-ball :one)
+                              {:scene (merge scene {:ball (obj/spawn-ball :one)
                                                     :paddle-one pd1
                                                     :paddle-two pd2})}
                               {:score (obj/update-sprite score :p2)})))

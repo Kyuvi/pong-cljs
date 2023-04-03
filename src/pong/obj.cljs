@@ -92,6 +92,22 @@
 (defn make-paddle [x y size key-up key-dn top bottom]
   (Paddle. (make-spos x y) size key-up key-dn top bottom))
 
+
+(defn make-game-paddle
+  [side key-up key-down]
+  (let [xpos (if (= side :left)
+               (+ (:left pr/game-border) pr/grid-size)
+               (- (:right pr/game-border) pr/grid-size ))]
+    (make-paddle xpos (/ (:height pr/game-border) 2) (:len pr/paddle-vals) ;;obj/paddle-len
+                     key-up key-down
+                     (:top pr/game-border) (:bottom pr/game-border))
+    ;; (Paddle. (make-spos xpos (/ (:height pr/game-border) 2))
+    ;;          (:len pr/paddle-vals)
+    ;;          key-up key-down
+    ;;          (:top pr/game-border) (:bottom pr/game-border))
+    ))
+
+
 (defrecord Ball [pos speed direction top bottom tick-count]
   SpriteProtocol
   (get-pos [sp] (get-pos (:pos sp)))
@@ -121,6 +137,20 @@
 
 (defn make-ball [x y speed direction top bottom]
   (Ball. (make-spos x y) speed direction top bottom 0))
+
+(defn spawn-ball
+  ([] (spawn-ball nil))
+  ([side]
+   (let [angle (cond (= side :one) (* (/ 1 3) (+ (* (js/Math.random) 2) 2) js/Math.PI)
+                     (= side :two) (* (/ 1 3) (dec (* (js/Math.random) 2)) js/Math.PI)
+                     :else (+ (* (/ 1 3) (dec (* (js/Math.random) 2)) js/Math.PI)
+                              (*(- 1 (Math/random) Math/PI))))
+         center (- (/ (:width pr/game-view) 2) (/ pr/grid-size 2))
+         h (+ (* (Math/random) (- (:height pr/game-border) (* 3 pr/grid-size)))
+              (:top pr/game-border) pr/grid-size)]
+     (make-ball center h 0 angle (:top pr/game-border)
+                    (- (:bottom pr/game-border) pr/grid-size))
+     )))
 
 (defrecord Cursor [w h pos-xs size color current timeout]
   SpriteProtocol
