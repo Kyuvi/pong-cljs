@@ -27,18 +27,23 @@
      :height (- bottom top) :width (- right left)}))
 
 (def cursor-vals "Values of cursor attributes."
-  {:width (* grid-size 20) :height (* grid-size 4) :thickness 5})
+  {:width (* grid-size 20) :controls-width (* grid-size 30)
+   :height (* grid-size 4) :thickness 5})
 
 (def cursor-xpos "Map of x positions for cursor."
   {:centered (/ (- (:width game-view) (:width cursor-vals)
                    (* (:thickness cursor-vals) 2))
                 2)
-   :left 20 })
+   :left 200 })
+
+(defn center-cursor [mode]
+  (let [width-key (if (= mode :controls) :controls-width :width)]
+    (/ (- (:width game-view) (width-key cursor-vals)) 2)))
 
 (def cursor-ypos "Map of y positons vectors for relevant modes."
   {:menu [20.5 25.5 30.5 35.5]
    :options [20.5 25.5 30.5 35.5]; [28.5 33.5 38.5]
-   :controls [20.5 25.5 30.5 35.5]
+   :controls [15.5 20.5 25.5 30.5 35.5]
    :end [28.5 33.5]})
 
 

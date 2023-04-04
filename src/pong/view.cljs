@@ -38,6 +38,8 @@
               (scn/draw-credits-scene ctx)
               :options
               (scn/draw-options-scene ctx state)
+              :controls
+              (scn/draw-controls-scene ctx state)
               :end
               (scn/draw-end-scene ctx state)
               :else

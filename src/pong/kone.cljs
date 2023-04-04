@@ -14,22 +14,23 @@
 (defn make-cursor-xs
   "Returns the vector of [x y] vectors for `mode`."
   [mode]
-  (let [xpos-key (if (#{:menu :options :end} mode) :centered :left)
-        xpos (xpos-key pr/cursor-xpos)
+  (let [;xpos-key (if (#{:menu :options :controls :end} mode) :centered :left)
+        ;; xpos (xpos-key pr/cursor-xpos)
+        xpos (pr/center-cursor mode)
         y-pos-xs (mode pr/cursor-ypos)]
     ;; (when y-pos-xs
     (mapv (fn [ypos] [xpos (* pr/grid-size ypos)]) y-pos-xs)
     ;; )
   ))
 
-
 (defn initialize-state
   ([mode] (initialize-state mode nil))
   ([mode previous-state]
-   (assert (contains? #{:menu :single :versus :options ;; :controls
+   (assert (contains? #{:menu :single :versus :options :controls
                         :credits :end} mode)
           (str "mode " mode
-               " not one of ':menu :single :versus :options :credits :end'"))
+               " not one of ':menu :single :versus :options :controls"
+               ":credits :end'"))
   (let [settings (if previous-state
                   (:settings previous-state)
                   {:rounds 5 :difficulty 1
@@ -41,10 +42,14 @@
     {:state
      {:mode mode
       :settings settings
-      :cursor (when (#{:menu :options :end} mode)
-                (obj/make-cursor (:width pr/cursor-vals) (:height pr/cursor-vals)
+      :cursor (when (#{:menu :options :controls :end} mode)
+                (obj/make-cursor ((if (= mode :controls)
+                                    :controls-width
+                                    :width)
+                                  pr/cursor-vals)
+                                 (:height pr/cursor-vals)
                                  (make-cursor-xs mode)
-                               (:thickness pr/cursor-vals)))
+                                 (:thickness pr/cursor-vals)))
       :scene (when (contains? #{:single :versus} mode)
                {:paddle-one (obj/make-game-paddle :left pou pod) ;"r" "d");  82 68 )
                 :paddle-two  (obj/make-game-paddle :right ptu ptd) ; "h" "i") ;72 73 )
@@ -124,6 +129,62 @@
       2 (switch-mode db :controls)
       3 (switch-mode db :menu))))
 
+(defn invalid-key-string-alert []
+  (js/alert (str "only one of \n"
+                 "a-z, A-Z, 0-9\n"
+                 "or\n"
+                 "up, down, left, right\n"
+                 "allowed as control key strings.")))
+
+
+(def valid-keyset
+  (let [alpha (range 65 (+ 65 26))
+        nums (range 48 (+ 48 10))
+        ;; alpha-nums (concat alpha nums)
+        an-list (map String/fromCharCode (concat alpha nums))
+        arrow-vec ["UP" "DOWN" "LEFT" "RIGHT"]
+        ]
+    (set (concat an-list arrow-vec))))
+
+
+
+(defn process-key-string [s]
+  (let [up-string (.toUpperCase s)
+        valid-string (valid-keyset up-string)]
+    (if valid-string
+      (case valid-string
+        "UP" "ArrowUp"
+        "DOWN" "ArrowDown"
+        "LEFT" "ArrowLeft"
+        "RIGHT" "ArrowRight"
+        valid-string)
+      (invalid-key-string-alert)
+      )))
+
+
+(defn controls-get-key [db vec s]
+  (let [temp-key (js/prompt s)
+        new-key (process-key-string temp-key)]
+    (if new-key
+      (assoc-in db vec new-key)
+      db)))
+
+(defn handle-controls-enter [db]
+  (let [cur-state (:state db)
+        current-pos (get-in cur-state [:cursor :current])
+        ]
+    (case current-pos
+      0 (controls-get-key db [:state :settings :controls :p1 :up]
+                          "input player 1 up key")
+      1 (controls-get-key db [:state :settings :controls :p1 :down]
+                          "input player 1 down key")
+      2 (controls-get-key db [:state :settings :controls :p2 :up]
+                          "input player 2 up key")
+      3 (controls-get-key db [:state :settings :controls :p2 :down]
+                          "input player 2 down key")
+      4 (switch-mode db :options))
+
+    ))
 
 (defn remove-pressed-key [db key]
   (update-in db [:key-input :pressed] #(disj % key)))
@@ -163,6 +224,10 @@
 (defn handle-options-enter-cofx
   [{db :db}]
   {:db (handle-options-enter db)})
+
+(defn handle-controls-enter-cofx
+  [{db :db}]
+  {:db (handle-controls-enter db)})
 
 (defn remove-pressed-key-cofx
   [{db :db} key]
@@ -204,6 +269,11 @@
   (merge cursor-screen-actions credit-down-actions
          {"Enter" #(handle-options-enter-cofx %)}))
 
+(def controls-down-actions
+  (merge cursor-screen-actions credit-down-actions
+         {"Enter" #(handle-controls-enter-cofx %)}
+         ))
+
 (def end-down-actions
   (merge cursor-screen-actions credit-down-actions
          {"Enter" #(switch-mode-cofx % [:previous :menu])
@@ -242,7 +312,7 @@
    :single game-down-actions
    :versus  game-down-actions
    :options options-down-actions
-   :controls nil
+   :controls controls-down-actions
    :credits credit-down-actions
    :end end-down-actions})
 
@@ -270,9 +340,12 @@
         action (get-in down-actions-by-mode [(:mode (:state db)) key] no-op)]
         ;; action (get-in down-actions [(:mode (:state db)) key ] no-op)]
     (println action)
-    (if (ckey-set key)
-      (add-pressed-key-cofx cofx key) ;; seems to give cleaner response in game
-      (action cofx))))
+    ;; (if (ckey-set key)
+    ;;   (add-pressed-key-cofx cofx key) ;; seems to give cleaner response in game
+    ;;   (action cofx))))
+    (cond action (action cofx)
+          (ckey-set key) (add-pressed-key-cofx cofx key)
+          :else (no-op cofx))))
 
 (defn handle-key-up
   [{db :db :as cofx} kw {:keys [event key shift alt] :as data}]

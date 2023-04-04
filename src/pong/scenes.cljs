@@ -59,10 +59,20 @@
   [txt size]
   (/ (- (:width pr/game-view) (* (count txt) size 4)) 2))
 
+(defn characterize-string [s]
+  (case s
+    "ArrowUp" "^"
+    "ArrowDown" "↓"
+    "ArrowLeft" "<"
+    "ArrowRight" ">"
+     s))
+
 (defn draw-menu-scene [ctx state]
   (let [controls (get-in state [:settings :controls])
-        p1-keys (str (:up (:p1 controls)) "/" (:down (:p1 controls)))
-        p2-keys (str (:up (:p2 controls)) "/" (:down (:p2 controls)))
+        p1-keys (str (characterize-string (:up (:p1 controls)))
+                     "/" (characterize-string (:down (:p1 controls))))
+        p2-keys (str (characterize-string (:up (:p2 controls)))
+                     "/" (characterize-string (:down (:p2 controls))))
         t1 "PONG"
         ;; t2 "IN CLOJURESCRIPT"
         ;; t2 "[CLOJURESCRIPT]"
@@ -71,9 +81,10 @@
         o2 "2P START"
         o3 "OPTIONS"
         o4 "CREDITS"
-        b1 "ENTER - SELECT   SPACE - PAUSE   ESC - BACK   "
+        ;; b1 "ENTER - SELECT   SPACE - PAUSE   ESC - BACK   "
+        b1 "ENTER - SELECT      SPACE - PAUSE    ESC - MENU SCREEN"
         b2 (str "PLAYER1 - " p1-keys
-                "                    PLAYER2 - " p2-keys) ;; TODO: use settings
+                "                        PLAYER2 - " p2-keys "    ")
         b3 pr/version
         cursor (:cursor state)
         [menu-size hint-size] [5 3]]
@@ -138,7 +149,7 @@
   (let [{:keys [settings cursor]} state
         t1 "OPTIONS"
         t2 (str (:rounds settings))
-        o1 "TO WIN"
+        o1 "POINTS WIN"
         o2  (str "AI " (pr/game-difficulty (:difficulty settings)))
         o3 "CONTROLS"
         o4 "MENU"
@@ -162,6 +173,19 @@
      b3 :size hint-size)
     (obj/draw-sprite cursor ctx )
     ))
+
+(defn draw-controls-scene [ctx state]
+  (let [{:keys [p1 p2]} (get-in state [:settings :controls])
+        t1 "CONTROLS"
+        o1 (str "PLAYER 1 UP:    " (characterize-string (:up p1)))
+        o2 (str "PLAYER 1 DOWN:  " (characterize-string (:down p1)))
+        o3 (str "PLAYER 2 UP:    " (characterize-string (:up p2)))
+        o4 (str "PLAYER 2 DOWN:  " (characterize-string (:down p2)))
+        o5 "OPTIONS"
+        ;; o5 "MENU"
+        b1 "valid control keys are: one of a-z or 0-9,"
+        b2 "or up, down, left or right."
+        b3 pr/version
         cursor (:cursor state)
         [menu-size hint-size] [5 3]
         ]
@@ -170,17 +194,26 @@
        (lt/write-text
         ctx (center-text txt pr/grid-size) (* pr/grid-size ypos)
         txt ))
-     [[t1 10] [t2 22]])
+     [[t1 7]])
     (run!
      (fn [[txt ypos]]
        (lt/write-text
         ctx (center-text txt menu-size) (* pr/grid-size ypos)
         txt :size menu-size ))
-     [[o1 30] [o2 35] [o3 40]])
-    (lt/write-text
-     ctx (center-text b3 hint-size) (- (:height pr/game-view) (* hint-size 14))
-     b3 :size hint-size)
+     [[o1 17] [o2 22] [o3 27] [o4 32] [o5 37]])
+    ;; (lt/write-text
+    ;;  ctx (center-text b3 hint-size) (- (:height pr/game-view) (* hint-size 14))
+    ;;  b3 :size hint-size)
+    (run!
+     (fn [[txt ypos]]
+       (lt/write-text
+        ctx (center-text txt hint-size)
+        (- (:height pr/game-view) (* hint-size ypos)) txt :size hint-size ))
+     [[b1 35] [b2 28] [b3 14]])
+    (obj/draw-sprite cursor ctx )
+
     ))
+
 
 (defn draw-end-scene [ctx state]
   (let [prev (rfu/<sub [::subs/previous])
