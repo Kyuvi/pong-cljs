@@ -8,7 +8,7 @@
 
         ;;;; game constant values ;;;;
 
-(def version "v0.01")
+(def version "v1.0")
 
 (def game-view "Values of game attributes." {:fps 60 :width 804 :height 600 })
 (def game-modes #{:menu :single :versus :options :controls :credits :end })
