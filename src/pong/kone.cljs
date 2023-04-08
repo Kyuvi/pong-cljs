@@ -133,30 +133,31 @@
   (js/alert (str "only one of \n"
                  "a-z, A-Z, 0-9\n"
                  "or\n"
-                 "up, down, left, right\n"
+                 "'up', 'down', 'left' or 'right'\n"
                  "allowed as control key strings.")))
 
 
 (def valid-keyset
-  (let [alpha (range 65 (+ 65 26))
+  (let [alpha (range 97 (+ 97 26))
         nums (range 48 (+ 48 10))
         ;; alpha-nums (concat alpha nums)
-        an-list (map String/fromCharCode (concat alpha nums))
-        arrow-vec ["UP" "DOWN" "LEFT" "RIGHT"]
+        an-list (map String/fromCharCode (into alpha nums))
+        arrow-vec #{"up" "down" "left" "right"}
         ]
-    (set (concat an-list arrow-vec))))
-
+    ;; (set
+     (into arrow-vec an-list)))
+  ;; )
 
 
 (defn process-key-string [s]
-  (let [up-string (.toUpperCase s)
+  (let [up-string (.toLowerCase s)
         valid-string (valid-keyset up-string)]
     (if valid-string
       (case valid-string
-        "UP" "ArrowUp"
-        "DOWN" "ArrowDown"
-        "LEFT" "ArrowLeft"
-        "RIGHT" "ArrowRight"
+        "up" "ArrowUp"
+        "down" "ArrowDown"
+        "left" "ArrowLeft"
+        "right" "ArrowRight"
         valid-string)
       (invalid-key-string-alert)
       )))
